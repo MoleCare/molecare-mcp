@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.molecare/molecare-mcp",
+  "name": "io.github.MoleCare/molecare-mcp",
   "description": "Educational dermatology knowledge, MoleCare API and MLOps tools. Not a medical device.",
   "repository": {
     "url": "https://github.com/MoleCare/molecare-mcp",

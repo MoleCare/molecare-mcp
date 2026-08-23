@@ -1,7 +1,7 @@
 {
   "name": "molecare-mcp",
   "version": "1.0.0",
-  "mcpName": "io.github.molecare/molecare-mcp",
+  "mcpName": "io.github.MoleCare/molecare-mcp",
   "description": "MCP server exposing educational dermatology knowledge, MoleCare API tools, and MLOps operations tooling to Claude and other MCP clients. Not a medical device.",
   "license": "Apache-2.0",
   "author": "MoleCare LTD <info@molecare.co.uk> (https://www.molecare.co.uk)",
