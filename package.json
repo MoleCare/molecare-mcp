@@ -48,10 +48,10 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.980.0",
-    "@aws-sdk/client-ec2": "^3.980.0",
-    "@modelcontextprotocol/sdk": "^1.0.0",
-    "axios": "^1.6.0",
+    "@aws-sdk/client-cloudwatch": "^3.1116.0",
+    "@aws-sdk/client-ec2": "^3.1116.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "axios": "^1.19.0",
     "express": "^5.2.1",
     "zod": "^3.22.0"
   },
