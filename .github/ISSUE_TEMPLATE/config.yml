@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/MoleCare/molecare-mcp/blob/main/SECURITY.md
+    about: Do not file publicly — email info@molecare.co.uk
+  - name: Medical question about a mole or skin change
+    url: https://www.nhs.uk/conditions/melanoma-skin-cancer/
+    about: We cannot give medical advice. Please speak to a qualified clinician.
+  - name: MoleCare product support
+    url: https://www.molecare.co.uk/
+    about: For questions about the MoleCare apps rather than this server.

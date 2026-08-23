@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.DS_Store
+coverage/
+*.log
+.idea/
+.vscode/
+
+# Local drafts, not part of the public repo
+PUBLIC_README.md
+*.bak

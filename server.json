@@ -1,0 +1,61 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.molecare/molecare-mcp",
+  "description": "Educational dermatology knowledge, MoleCare API tools, and MLOps operations tooling for MCP clients. Not a medical device.",
+  "repository": {
+    "url": "https://github.com/MoleCare/molecare-mcp",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "molecare-mcp",
+      "version": "1.0.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "MOLECARE_API_URL",
+          "description": "Base URL of a MoleCare-compatible HTTP API. Omit to run in mock mode with synthetic data.",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string",
+          "default": "http://localhost:8080/api"
+        },
+        {
+          "name": "MOLECARE_API_KEY",
+          "description": "API key for the MoleCare API. Only needed when MOLECARE_API_URL points at a real backend.",
+          "isRequired": false,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "MLFLOW_TRACKING_URI",
+          "description": "MLflow tracking server for experiment and model-run tools. Mocked when unset.",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string",
+          "default": "http://localhost:5000"
+        },
+        {
+          "name": "AWS_REGION",
+          "description": "AWS region for EC2 and CloudWatch operations tools. Credentials come from the standard AWS chain.",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string",
+          "default": "us-east-1"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "description": "Logging verbosity (error, warn, info, debug).",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string",
+          "default": "info"
+        }
+      ]
+    }
+  ]
+}
