@@ -190,6 +190,8 @@ Please keep secrets out of examples and prefer localhost defaults.
 
 ## Related
 
+> **Environment variables:** `.env.example` is the authoritative list (all 27 variables read by the source). Regenerate the ground truth with `grep -rhoE "process\.env\.[A-Z_0-9]+" src/`. `ONTOLOGY_API_URL` and `FEAST_REPO_PATH` are not read by any source file.
+
 - [Model Context Protocol](https://modelcontextprotocol.io)  
 - [MoleCare](https://www.molecare.co.uk/)  
 - [MoleCare-ML](https://github.com/MoleCare/MoleCare-ML) — melanoma classification service and training notebooks
