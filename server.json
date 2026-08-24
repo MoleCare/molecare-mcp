@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.MoleCare/molecare-mcp",
-  "description": "Educational dermatology knowledge, MoleCare API and MLOps tools. Not a medical device.",
+  "description": "Educational dermatology knowledge and lesion tooling. No credentials needed. Not a medical device.",
   "repository": {
     "url": "https://github.com/MoleCare/molecare-mcp",
     "source": "github"
   },
-  "version": "1.0.0",
+  "version": "1.0.2",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "molecare-mcp",
-      "version": "1.0.0",
+      "version": "1.0.2",
       "transport": {
         "type": "stdio"
       },

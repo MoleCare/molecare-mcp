@@ -3241,20 +3241,32 @@ function getPersonalizedRecommendations(profile: any): string[] {
 async function main() {
   console.error("Starting MoleCare MCP Server...");
 
-  // Health check HTTP server for ECS/Docker health probes
-  const port = parseInt(process.env.PORT || "3000", 10);
-  const healthServer = createServer((req, res) => {
-    if (req.url === "/health") {
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ status: "ok" }));
-    } else {
-      res.writeHead(404);
-      res.end();
-    }
-  });
-  healthServer.listen(port, () => {
-    console.error(`Health check endpoint listening on port ${port}`);
-  });
+  // Health check HTTP server for ECS/Docker health probes.
+  //
+  // Only bind when a port is explicitly configured. Desktop MCP clients run this
+  // over stdio and have no use for the endpoint, and binding by default would
+  // collide with whatever the user already has on port 3000. Container images set
+  // PORT (see Dockerfile), so probes there are unaffected.
+  const configuredPort = process.env.MCP_HEALTH_PORT || process.env.PORT;
+  if (configuredPort) {
+    const port = parseInt(configuredPort, 10);
+    const healthServer = createServer((req, res) => {
+      if (req.url === "/health") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "ok" }));
+      } else {
+        res.writeHead(404);
+        res.end();
+      }
+    });
+    // A health endpoint is never worth taking the MCP server down for.
+    healthServer.on("error", (error) => {
+      console.error(`Health check endpoint unavailable on port ${port}: ${error}`);
+    });
+    healthServer.listen(port, () => {
+      console.error(`Health check endpoint listening on port ${port}`);
+    });
+  }
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

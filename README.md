@@ -28,40 +28,48 @@ MoleCare helps people **track moles over time** and prepare for clinician visits
 
 ## Quick start
 
-```bash
-git clone https://github.com/MoleCare/molecare-mcp.git
-cd molecare-mcp
-npm install
-npm run build
-npm start
-```
-
-Development (auto-reload):
-
-```bash
-npm run dev
-```
-
-Inspect tools:
-
-```bash
-npm run inspect
-```
-
-By default, many clients run in **mock mode** when backends / AWS credentials are missing (`NODE_ENV=development`).
-
----
-
-## Claude Desktop
-
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS):
+No credentials, no database, no cloud account. Add this to your MCP client config
+and restart it:
 
 ```json
 {
   "mcpServers": {
     "molecare": {
-      "command": "node",
-      "args": ["/ABSOLUTE/PATH/TO/molecare-mcp/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "molecare-mcp"]
+    }
+  }
+}
+```
+
+For Claude Desktop on macOS that file is
+`~/Library/Application Support/Claude/claude_desktop_config.json`.
+
+The dermatology knowledge tools work immediately — they read from a knowledge base
+bundled in the package. Everything that talks to a backend returns clearly-labelled
+mock data until you configure it, so you can explore the whole tool surface before
+deciding whether you want any of it.
+
+To try it without a client at all:
+
+```bash
+npx -y molecare-mcp
+```
+
+It starts and waits on stdio. No output means it is working.
+
+---
+
+## Connecting a real backend
+
+Only needed if you are running a MoleCare-compatible API:
+
+```json
+{
+  "mcpServers": {
+    "molecare": {
+      "command": "npx",
+      "args": ["-y", "molecare-mcp"],
       "env": {
         "MOLECARE_API_URL": "http://localhost:8080/api",
         "MOLECARE_API_KEY": "your-local-api-key"
@@ -71,7 +79,8 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 }
 ```
 
-Use **localhost** (or your own deployment). Do not paste production keys into config files that sync to cloud drives.
+Use **localhost** (or your own deployment). Do not paste production keys into config
+files that sync to cloud drives.
 
 ---
 
@@ -88,45 +97,75 @@ All optional unless you want live backends.
 | `FEAST_REPO_PATH` / feature store URL | Feast | — |
 | `AWS_REGION` | EC2 / CloudWatch clients | `us-east-1` |
 | `GITHUB_TOKEN` | CI/CD tools | — |
-| `PORT` | Optional HTTP `/health` | `3000` |
+| `MCP_HEALTH_PORT` | Bind an HTTP `/health` endpoint. Unset by default — stdio clients do not need it | `3000` |
+| `PORT` | Same, for container health probes | `3000` |
 
 See [`.env.example`](./.env.example).
 
 ---
 
-## Tools (overview)
+## Tools
 
-### Medical / product
+### Dermatology knowledge — no setup required
+
+These are the reason most people install this. They answer from a bundled knowledge
+base and need no API, no key, and no network.
+
 | Tool | Description |
 |------|-------------|
-| `get_user_moles` | List moles for a user id (API) |
+| `search_medical_info` | Search the dermatology knowledge base |
+| `lookup_medical_concept` | Look up a SNOMED CT concept |
+| `search_medical_concepts` | Search conditions by name or description |
+| `map_snomed_to_icd10` | Map a SNOMED CT code to ICD-10 |
+| `classify_lesion_features` | ABCDE-style feature descriptors for a lesion |
+| `assess_risk_from_factors` | Educational risk scoring from stated risk factors |
+| `get_condition_risk_factors` | Known risk factors for a condition |
+| `get_condition_progression` | Typical progression stages for a condition |
+| `get_malignant_conditions` | Malignant skin conditions with codes |
+
+**Resources:** `molecare://knowledge/*` — ABCDE criteria, Fitzpatrick skin types,
+prevention, when to see a dermatologist, SNOMED CT and ICD-10 references.
+
+### MoleCare product data — needs an API
+
+Returns labelled mock data until `MOLECARE_API_URL` is set.
+
+| Tool | Description |
+|------|-------------|
+| `get_user_moles` | List moles for a user id |
 | `get_mole_analysis` | Analysis payload for a mole |
-| `get_mole_changes` | Change history |
-| `get_user_risk_factors` | Risk profile |
-| `search_medical_info` | Knowledge base search |
+| `get_mole_changes` | Change history for a mole |
+| `get_user_risk_factors` | A user's risk profile |
 | `compare_moles` | Compare two moles |
-| `lookup_medical_concept` | SNOMED lookup |
-| `search_medical_concepts` | Search conditions |
-| `map_snomed_to_icd10` | Code mapping |
-| `assess_risk_from_factors` | Educational risk scoring |
-| `classify_lesion_features` | ABCDE-style feature helper |
 
-### Ops / MLOps (mock-friendly)
-| Tool | Description |
-|------|-------------|
-| `get_system_health` | Aggregate health |
-| `check_server_health` | API health probe |
-| `get_mlflow_experiments` / `get_mlflow_runs` | Experiment tracking |
-| `compare_model_runs` | Compare runs |
-| `get_ec2_instances` / `get_ec2_metrics` | AWS (needs credentials) |
-| `get_pipeline_runs` | CI summary |
-| `get_feature_views` | Feature store |
+<details>
+<summary><b>Operations and MLOps tooling</b> (~35 tools — MoleCare's own infrastructure)</summary>
 
-Full list: run MCP Inspector or browse `src/index.ts`.
+These exist because MoleCare operates this stack from an assistant. They are of
+little use outside that context, and all of them return mock data unless the
+matching backend is configured.
 
-### Resources
-- `molecare://knowledge/*` — ABCDE, Fitzpatrick, prevention, when to see a dermatologist  
-- Ontology and ops catalogs (when enabled)
+| Area | Tools |
+|------|-------|
+| Health | `get_system_health`, `check_server_health`, `get_service_health`, `clear_cache` |
+| MLflow | `get_mlflow_experiments`, `get_mlflow_runs`, `get_registered_models`, `get_model_version`, `compare_model_runs`, `get_training_runs` |
+| Feature store | `get_feature_views`, `get_feature_view_details`, `get_feature_freshness`, `get_online_features`, `get_feature_store_stats` |
+| CI/CD | `get_pipeline_runs`, `get_pipeline_summary`, `get_deployments`, `get_deployment_status`, `get_releases` |
+| AWS | `get_ec2_instances`, `get_ec2_instance`, `get_ec2_health`, `get_ec2_metrics` |
+| Apps | `get_app_status`, `get_web_app_status`, `get_mobile_api_status`, `get_all_apps_status`, `get_app_metrics`, `get_app_errors`, `get_app_versions`, `get_app_store_status` |
+| Database | `get_database_status`, `get_database_metrics`, `get_slow_queries`, `get_table_stats`, `get_backup_history`, `get_connection_pools` |
+| Kubernetes | `get_kubernetes_status` |
+
+The AWS tools need `@aws-sdk/client-ec2` and `@aws-sdk/client-cloudwatch`, which are
+**optional peer dependencies** — they are not installed by default, because they add
+33 MB that nobody wanting the dermatology tools should have to download. Install them
+yourself if you want live AWS data:
+
+```bash
+npm i @aws-sdk/client-ec2 @aws-sdk/client-cloudwatch
+```
+
+</details>
 
 ---
 
@@ -175,10 +214,12 @@ MoleCare MCP provides **educational** information and developer tooling. It does
 ## Development
 
 ```bash
+git clone https://github.com/MoleCare/molecare-mcp.git
+cd molecare-mcp
 npm install
 npm run build
-npm run dev
-npm run inspect
+npm run dev      # auto-reload
+npm run inspect  # browse tools in MCP Inspector
 ```
 
 Contributions are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) first — it covers the mock-first rule,

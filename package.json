@@ -1,8 +1,8 @@
 {
   "name": "molecare-mcp",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "mcpName": "io.github.MoleCare/molecare-mcp",
-  "description": "MCP server exposing educational dermatology knowledge, MoleCare API tools, and MLOps operations tooling to Claude and other MCP clients. Not a medical device.",
+  "description": "MCP server for educational dermatology knowledge (lesion terminology, ABCDE criteria, SNOMED CT to ICD-10 mapping), plus MoleCare API and MLOps tooling. Runs with no credentials. Not a medical device.",
   "license": "Apache-2.0",
   "author": "MoleCare LTD <info@molecare.co.uk> (https://www.molecare.co.uk)",
   "homepage": "https://github.com/MoleCare/molecare-mcp#readme",
@@ -48,12 +48,22 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.1116.0",
-    "@aws-sdk/client-ec2": "^3.1116.0",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "axios": "^1.19.0",
     "express": "^5.2.1",
     "zod": "^3.22.0"
+  },
+  "peerDependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.1116.0",
+    "@aws-sdk/client-ec2": "^3.1116.0"
+  },
+  "peerDependenciesMeta": {
+    "@aws-sdk/client-cloudwatch": {
+      "optional": true
+    },
+    "@aws-sdk/client-ec2": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
