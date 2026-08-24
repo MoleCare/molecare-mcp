@@ -1,0 +1,8 @@
+# Every change to this repository requires review from the owner.
+#
+# GitHub enforces this when the branch ruleset has "require review from Code
+# Owners" enabled — see the repository's Rules settings. Combined with the
+# pull-request rule, it means nothing reaches the default branch, and no
+# release is cut from it, without an explicit approval.
+
+* @YauhenBichel
