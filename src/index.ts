@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+import "dotenv/config";
 /**
  * MoleCare MCP Server
  * ====================
