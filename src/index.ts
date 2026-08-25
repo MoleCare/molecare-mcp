@@ -125,6 +125,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
     {
       name: "get_user_moles",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get all moles for a user with their current risk levels and last analysis dates. Use this to understand a user's overall skin health status.",
       inputSchema: {
@@ -140,6 +141,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_mole_analysis",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get detailed ML analysis results for a specific mole including ABCDE scores (Asymmetry, Border, Color, Diameter, Evolution). Use this to explain analysis results to users.",
       inputSchema: {
@@ -155,6 +157,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_mole_changes",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get the change history for a mole over time, including size changes, color changes, and trend analysis. Use this to explain how a mole has evolved.",
       inputSchema: {
@@ -170,6 +173,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_user_risk_factors",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get a user's skin cancer risk factors including skin type, family history, sun exposure habits, and calculated risk level. Use this for personalized advice.",
       inputSchema: {
@@ -185,6 +189,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "search_medical_info",
+      annotations: { readOnlyHint: true },
       description:
         "Search the medical knowledge base for skin health information. Use this to provide accurate educational content about skin conditions, ABCDE criteria, and prevention tips.",
       inputSchema: {
@@ -200,6 +205,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "compare_moles",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Compare two mole images to identify changes. Use this when a user asks about changes between photos.",
       inputSchema: {
@@ -226,6 +232,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     // ==========================================================================
     {
       name: "lookup_medical_concept",
+      annotations: { readOnlyHint: true },
       description:
         "Look up a medical concept by SNOMED CT code. Returns detailed information about skin conditions including severity and category. Use this to provide accurate medical terminology.",
       inputSchema: {
@@ -241,6 +248,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "search_medical_concepts",
+      annotations: { readOnlyHint: true },
       description:
         "Search for medical concepts by name or description. Returns matching SNOMED CT concepts for dermatology conditions.",
       inputSchema: {
@@ -256,6 +264,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_condition_progression",
+      annotations: { readOnlyHint: true },
       description:
         "Get information about how a skin condition can progress. Shows potential progression paths (e.g., dysplastic nevus to melanoma).",
       inputSchema: {
@@ -271,6 +280,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "map_snomed_to_icd10",
+      annotations: { readOnlyHint: true },
       description:
         "Map a SNOMED CT code to ICD-10 diagnosis codes. Useful for understanding official diagnosis classifications.",
       inputSchema: {
@@ -286,6 +296,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_condition_risk_factors",
+      annotations: { readOnlyHint: true },
       description:
         "Get risk factors associated with a specific condition. Returns factors like family history, skin type, UV exposure.",
       inputSchema: {
@@ -301,6 +312,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "assess_risk_from_factors",
+      annotations: { readOnlyHint: true },
       description:
         "Calculate risk assessment based on a list of risk factors. Returns combined relative risk and recommendations.",
       inputSchema: {
@@ -317,6 +329,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "classify_lesion_features",
+      annotations: { readOnlyHint: true },
       description:
         "Classify a lesion based on its ABCDE features. Returns possible conditions, risk level, and recommendations. Use this to help interpret mole analysis results.",
       inputSchema: {
@@ -348,6 +361,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_malignant_conditions",
+      annotations: { readOnlyHint: true },
       description:
         "Get a list of all malignant skin conditions in the ontology. Use for educational purposes about skin cancers.",
       inputSchema: {
@@ -361,6 +375,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     // ==========================================================================
     {
       name: "get_app_status",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get status of all MoleCare applications including web app, mobile API, backend, and ML serving. Use this to check overall system health.",
       inputSchema: {
@@ -377,6 +392,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_kubernetes_status",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get Kubernetes cluster status including nodes, namespaces, deployments, and pod health.",
       inputSchema: {
@@ -392,6 +408,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_deployments",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get status of Kubernetes deployments across namespaces. Shows replica counts, images, and health status.",
       inputSchema: {
@@ -407,6 +424,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_service_health",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get health status of all backend services including databases, cache, storage, auth, and external dependencies.",
       inputSchema: {
@@ -417,6 +435,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_database_status",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get status of all databases including PostgreSQL and Redis instances with connection pools and latency.",
       inputSchema: {
@@ -430,6 +449,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     // ==========================================================================
     {
       name: "get_pipeline_runs",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get recent CI/CD pipeline runs from GitHub Actions. Shows build status, duration, and triggered by.",
       inputSchema: {
@@ -449,6 +469,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_pipeline_summary",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get summary statistics for CI/CD pipelines including success rate, average duration, and failure count.",
       inputSchema: {
@@ -464,6 +485,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_training_runs",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get Metaflow ML training pipeline runs. Shows training status, parameters, and duration.",
       inputSchema: {
@@ -483,6 +505,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_deployment_status",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get current deployment status for staging and production environments.",
       inputSchema: {
@@ -499,6 +522,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_releases",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get recent releases with version info, release notes, and assets.",
       inputSchema: {
@@ -517,6 +541,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     // ==========================================================================
     {
       name: "get_mlflow_experiments",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "List all MLflow experiments with their status and last update time.",
       inputSchema: {
@@ -527,6 +552,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_mlflow_runs",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get MLflow runs for an experiment with metrics, parameters, and status.",
       inputSchema: {
@@ -550,6 +576,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_registered_models",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "List all registered ML models in MLflow model registry with versions and stages.",
       inputSchema: {
@@ -560,6 +587,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_model_version",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get details of a specific model version including stage, metrics, and run info.",
       inputSchema: {
@@ -579,6 +607,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "compare_model_runs",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Compare metrics between multiple MLflow runs to evaluate model performance.",
       inputSchema: {
@@ -598,6 +627,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     // ==========================================================================
     {
       name: "get_feature_views",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "List all Feast feature views with their entities, features, and data sources.",
       inputSchema: {
@@ -608,6 +638,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_feature_view_details",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get detailed information about a specific feature view.",
       inputSchema: {
@@ -623,6 +654,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_feature_freshness",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get freshness status of all feature views showing last materialization time and staleness.",
       inputSchema: {
@@ -633,6 +665,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_online_features",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Retrieve online features for an entity from Feast feature store.",
       inputSchema: {
@@ -652,6 +685,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_feature_store_stats",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get overall statistics about the Feast feature store including counts and store types.",
       inputSchema: {
@@ -665,6 +699,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     // ==========================================================================
     {
       name: "get_system_health",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get comprehensive health status of all MCP backend services. Use this to check if services are available before making other calls.",
       inputSchema: {
@@ -675,6 +710,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "clear_cache",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Clear the MCP server's internal cache. Use when you need fresh data after known changes.",
       inputSchema: {
@@ -693,6 +729,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     // ==========================================================================
     {
       name: "get_ec2_instances",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get all MoleCare EC2 instances with their current state, IP addresses, and instance types. Use this to see all running servers.",
       inputSchema: {
@@ -709,6 +746,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_ec2_instance",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get detailed information about a specific EC2 instance by its instance ID.",
       inputSchema: {
@@ -724,6 +762,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_ec2_health",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get AWS health check status for EC2 instances including instance and system status checks.",
       inputSchema: {
@@ -739,6 +778,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_ec2_metrics",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get CloudWatch metrics (CPU, network) for an EC2 instance over a specified time period.",
       inputSchema: {
@@ -758,6 +798,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "check_server_health",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Check if the molecare-server application is responding on an EC2 instance by hitting its health endpoint.",
       inputSchema: {
@@ -776,6 +817,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     // ==========================================================================
     {
       name: "get_web_app_status",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get the current status of the MoleCare web application including health, version, response time, and uptime.",
       inputSchema: {
@@ -786,6 +828,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_mobile_api_status",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get the current status of the MoleCare mobile API backend including health, version, and response time.",
       inputSchema: {
@@ -796,6 +839,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_all_apps_status",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get status of all MoleCare applications (web, mobile API, iOS app, Android app) in one call.",
       inputSchema: {
@@ -806,6 +850,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_app_metrics",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get application metrics including request counts, error rates, response times, and active users.",
       inputSchema: {
@@ -826,6 +871,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_app_errors",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get recent application errors including error messages, endpoints, status codes, and occurrence counts.",
       inputSchema: {
@@ -846,6 +892,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_app_versions",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get deployed versions of all MoleCare applications across environments (production, staging).",
       inputSchema: {
@@ -856,6 +903,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_app_store_status",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get iOS App Store and Android Play Store status including ratings, reviews, and current live versions.",
       inputSchema: {
@@ -869,6 +917,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     // ==========================================================================
     {
       name: "get_database_metrics",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get database performance metrics including query stats, storage usage, cache hit ratios, and deadlocks.",
       inputSchema: {
@@ -884,6 +933,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_slow_queries",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get slow database queries that may need optimization, sorted by total execution time.",
       inputSchema: {
@@ -903,6 +953,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_table_stats",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get statistics for database tables including row counts, sizes, and vacuum/analyze status.",
       inputSchema: {
@@ -918,6 +969,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_backup_history",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get database backup history including automated and manual backups with their status and sizes.",
       inputSchema: {
@@ -933,6 +985,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_connection_pools",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get connection pool status for all database clients showing active, idle, and waiting connections.",
       inputSchema: {
