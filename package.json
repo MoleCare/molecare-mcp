@@ -1,8 +1,8 @@
 {
   "name": "molecare-mcp",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "mcpName": "io.github.MoleCare/molecare-mcp",
-  "description": "MCP server for educational dermatology knowledge (lesion terminology, ABCDE criteria, SNOMED CT to ICD-10 mapping), plus MoleCare API and MLOps tooling. Runs with no credentials. Not a medical device.",
+  "description": "MCP server bridging the MoleCare API to any MCP client: educational dermatology knowledge (lesion terminology, ABCDE criteria, SNOMED CT to ICD-10 mapping) and mole tracking data. Runs with no credentials. Not a medical device.",
   "license": "Apache-2.0",
   "author": "MoleCare LTD <info@molecare.co.uk> (https://www.molecare.co.uk)",
   "homepage": "https://github.com/MoleCare/molecare-mcp#readme",
@@ -29,7 +29,8 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "molecare-mcp": "dist/index.js"
+    "molecare-mcp": "dist/index.js",
+    "molecare-ops-mcp": "dist/ops.js"
   },
   "files": [
     "dist",
