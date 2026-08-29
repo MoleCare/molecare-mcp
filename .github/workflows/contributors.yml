@@ -1,0 +1,51 @@
+name: Contributors
+
+# Fills the README markers from the GitHub contributors API (commit order, bots
+# omitted). Names and counts are never hardcoded — a stale hand-written list is
+# worse than none.
+#
+# Does not open a pull request. A protected default branch refuses both a
+# GITHUB_TOKEN push and "Actions may create pull requests", so this writes only
+# on a same-repo pull request branch, or on workflow_dispatch of a
+# non-default branch.
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: contributors-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  readme:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+          persist-credentials: true
+
+      - name: Fill README contributors
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python3 .github/scripts/fill_contributors.py
+
+      - name: Push the list on a writable branch
+        if: >-
+          github.event.repository.default_branch != (github.head_ref || github.ref_name)
+          && (github.event_name != 'pull_request'
+              || github.event.pull_request.head.repo.full_name == github.repository)
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add README.md
+          git diff --cached --quiet && exit 0
+          git commit -m "docs: refresh README contributors"
+          git push

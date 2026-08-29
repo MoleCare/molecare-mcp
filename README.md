@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
 [![MCP](https://img.shields.io/badge/MCP-compatible-purple.svg)](https://modelcontextprotocol.io)
+[![Contributors](https://img.shields.io/github/contributors/MoleCare/molecare-mcp)](https://github.com/MoleCare/molecare-mcp#contributors)
 
 **Model Context Protocol (MCP) server** that gives Claude and other MCP clients access to:
 
@@ -238,6 +239,52 @@ Please keep secrets out of examples and prefer localhost defaults.
 - [MoleCare-ML](https://github.com/MoleCare/MoleCare-ML) — melanoma classification service and training notebooks
 
 ---
+
+## Contributors
+
+Thank you to everyone who has helped molecare-mcp.
+
+<!-- readme: contributors,bots/- -start -->
+<table>
+	<tbody>
+		<tr>
+			<td align="center">
+				<a href="https://github.com/YauhenBichel">
+					<img src="https://avatars.githubusercontent.com/YauhenBichel?s=48" width="48" alt="Yauhen Bichel" />
+					<br />
+					<sub><b>Yauhen Bichel</b></sub>
+				</a>
+			</td>
+			<td align="center">
+				<a href="https://github.com/kkkhs">
+					<img src="https://avatars.githubusercontent.com/kkkhs?s=48" width="48" alt="Huangshuo Kuang" />
+					<br />
+					<sub><b>Huangshuo Kuang</b></sub>
+				</a>
+			</td>
+			<td align="center">
+				<a href="https://github.com/YuuGR1337">
+					<img src="https://avatars.githubusercontent.com/YuuGR1337?s=48" width="48" alt="Elkero" />
+					<br />
+					<sub><b>Elkero</b></sub>
+				</a>
+			</td>
+			<td align="center">
+				<a href="https://github.com/komallsingh">
+					<img src="https://avatars.githubusercontent.com/komallsingh?s=48" width="48" alt="Komal Singh" />
+					<br />
+					<sub><b>Komal Singh</b></sub>
+				</a>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<!-- readme: contributors,bots/- -end -->
+
+The list is filled by [Contributors](./.github/workflows/contributors.yml) from
+GitHub commits, bots omitted — never hand-maintained, because a stale list is
+worse than none. [Contributor graph](https://github.com/MoleCare/molecare-mcp/graphs/contributors) ·
+[good first issue](https://github.com/MoleCare/molecare-mcp/labels/good%20first%20issue)
 
 ## License
 
