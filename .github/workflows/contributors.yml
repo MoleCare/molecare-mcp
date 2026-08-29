@@ -8,11 +8,14 @@ name: Contributors
 # GITHUB_TOKEN push and "Actions may create pull requests", so this writes only
 # on a same-repo pull request branch, or on workflow_dispatch of a
 # non-default branch.
+#
+# No `push` trigger on purpose. With both push and pull_request the two runs
+# share a concurrency group, so one cancels the other and every pull request is
+# left showing a cancelled check that reads like a failure.
 
 on:
   pull_request:
   workflow_dispatch:
-  push:
 
 permissions:
   contents: write
