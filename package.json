@@ -1,8 +1,8 @@
 {
   "name": "molecare-mcp",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "mcpName": "io.github.MoleCare/molecare-mcp",
-  "description": "MCP server for educational dermatology knowledge (lesion terminology, ABCDE criteria, SNOMED CT to ICD-10 mapping), plus MoleCare API and MLOps tooling. Runs with no credentials. Not a medical device.",
+  "description": "MCP server bridging the MoleCare API to any MCP client: educational dermatology knowledge (lesion terminology, ABCDE criteria, SNOMED CT to ICD-10 mapping) and mole tracking data. Runs with no credentials. Not a medical device.",
   "license": "Apache-2.0",
   "author": "MoleCare LTD <info@molecare.co.uk> (https://www.molecare.co.uk)",
   "homepage": "https://github.com/MoleCare/molecare-mcp#readme",
@@ -29,7 +29,8 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "molecare-mcp": "dist/index.js"
+    "molecare-mcp": "dist/index.js",
+    "molecare-ops-mcp": "dist/ops.js"
   },
   "files": [
     "dist",
@@ -42,6 +43,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "test": "npm run build && node --test tests/mock-mode-smoke.mjs",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "inspect": "npx @anthropic-ai/mcp-inspector dist/index.js",
@@ -51,6 +53,7 @@
     "@modelcontextprotocol/sdk": "^1.30.0",
     "axios": "^1.19.0",
     "express": "^5.2.1",
+    "dotenv": "^17.4.2",
     "zod": "^3.22.0"
   },
   "peerDependencies": {
@@ -66,8 +69,7 @@
     }
   },
   "devDependencies": {
-    "@types/express": "^5.0.6",
-    "@types/node": "^20.10.0",
+    "@types/node": "^26.3.0",
     "tsx": "^4.6.0",
     "typescript": "^5.3.0"
   }
