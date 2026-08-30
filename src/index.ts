@@ -232,7 +232,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     // ==========================================================================
     {
       name: "lookup_medical_concept",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Look up a medical concept by SNOMED CT code. Returns detailed information about skin conditions including severity and category. Use this to provide accurate medical terminology.",
       inputSchema: {
@@ -248,7 +248,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "search_medical_concepts",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Search for medical concepts by name or description. Returns matching SNOMED CT concepts for dermatology conditions.",
       inputSchema: {
@@ -264,7 +264,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_condition_progression",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get information about how a skin condition can progress. Shows potential progression paths (e.g., dysplastic nevus to melanoma).",
       inputSchema: {
@@ -280,7 +280,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "map_snomed_to_icd10",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Map a SNOMED CT code to ICD-10 diagnosis codes. Useful for understanding official diagnosis classifications.",
       inputSchema: {
@@ -296,7 +296,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_condition_risk_factors",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get risk factors associated with a specific condition. Returns factors like family history, skin type, UV exposure.",
       inputSchema: {
@@ -312,7 +312,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "assess_risk_from_factors",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Calculate risk assessment based on a list of risk factors. Returns combined relative risk and recommendations.",
       inputSchema: {
@@ -329,7 +329,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "classify_lesion_features",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Classify a lesion based on its ABCDE features. Returns possible conditions, risk level, and recommendations. Use this to help interpret mole analysis results.",
       inputSchema: {
@@ -361,7 +361,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "get_malignant_conditions",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get a list of all malignant skin conditions in the ontology. Use for educational purposes about skin cancers.",
       inputSchema: {
@@ -710,7 +710,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "clear_cache",
-      annotations: { readOnlyHint: true, openWorldHint: true },
+      annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
       description:
         "Clear the MCP server's internal cache. Use when you need fresh data after known changes.",
       inputSchema: {
