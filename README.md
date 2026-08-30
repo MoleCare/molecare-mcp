@@ -9,7 +9,7 @@
 
 1. **Dermatology knowledge** — ABCDE education, SNOMED CT / ICD-10 helpers, risk-factor prompts  
 2. **Optional MoleCare API tools** — moles, trends, analysis (your backend + API key)  
-3. **Optional MLOps / ops tools** — health checks, MLflow, feature store, infra (mock-first)
+3. **Optional MLOps / ops tools** — shipped as a *separate* binary, `molecare-ops-mcp` (mock-first)
 
 > **Not a medical device.** Outputs are educational and operational aids only. Do not use for diagnosis or treatment decisions.
 
@@ -140,11 +140,26 @@ Returns labelled mock data until `MOLECARE_API_URL` is set.
 | `compare_moles` | Compare two moles |
 
 <details>
-<summary><b>Operations and MLOps tooling</b> (~35 tools — MoleCare's own infrastructure)</summary>
+<summary><b>Operations and MLOps tooling</b> (39 tools — separate <code>molecare-ops-mcp</code> binary)</summary>
 
 These exist because MoleCare operates this stack from an assistant. They are of
 little use outside that context, and all of them return mock data unless the
 matching backend is configured.
+
+**They are not part of the `molecare-mcp` tool list.** Loading 39 infrastructure
+tools that nobody outside MoleCare can use made it measurably harder for a model
+to pick the right dermatology tool, so they live in their own server:
+
+```json
+{
+  "mcpServers": {
+    "molecare-ops": {
+      "command": "npx",
+      "args": ["-y", "-p", "molecare-mcp", "molecare-ops-mcp"]
+    }
+  }
+}
+```
 
 | Area | Tools |
 |------|-------|
@@ -176,13 +191,14 @@ npm i @aws-sdk/client-ec2 @aws-sdk/client-cloudwatch
 Claude / Cursor / MCP client
         │ stdio (JSON-RPC)
         ▼
-  molecare-mcp
-   ├─ medical KB (local)
-   ├─ MoleCare API client (optional)
-   ├─ ontology / MLflow / Feast clients (optional)
-   └─ AWS / CI clients (optional, mock if unset)
-        │
-        └─ optional HTTP GET /health  (Docker / ECS)
+  molecare-mcp                    molecare-ops-mcp
+   ├─ medical KB (local)           ├─ MLflow / Feast clients
+   ├─ MoleCare API client          ├─ AWS / CI / K8s clients
+   └─ ontology client              └─ database / app clients
+        │    (14 tools)                 │   (39 tools, internal)
+        │                               │
+        └───────────┬───────────────────┘
+                    └─ optional HTTP GET /health  (Docker / ECS)
 ```
 
 ---
