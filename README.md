@@ -1,5 +1,7 @@
 # MoleCare MCP Server
 
+[![npm version](https://img.shields.io/npm/v/molecare-mcp)](https://www.npmjs.com/package/molecare-mcp)
+[![npm downloads](https://img.shields.io/npm/dw/molecare-mcp)](https://www.npmjs.com/package/molecare-mcp)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
 [![MCP](https://img.shields.io/badge/MCP-compatible-purple.svg)](https://modelcontextprotocol.io)
@@ -14,6 +16,12 @@
 > **Not a medical device.** Outputs are educational and operational aids only. Do not use for diagnosis or treatment decisions.
 
 Product site: [molecare.co.uk](https://www.molecare.co.uk/) · App: [iOS](https://apps.apple.com/us/app/molecare/id1448635328) · [Android](https://play.google.com/store/apps/details?id=com.mymolecare)
+
+<p align="center">
+  <img src="docs/demo.gif" alt="npx -y molecare-mcp answering a SNOMED CT to ICD-10 lookup with no credentials configured" width="760">
+</p>
+
+<p align="center"><em>One command, no API key, no database. Real output from the published package.</em></p>
 
 ---
 
