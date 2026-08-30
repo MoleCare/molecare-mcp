@@ -189,7 +189,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "search_medical_info",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: false },
       description:
         "Search the medical knowledge base for skin health information. Use this to provide accurate educational content about skin conditions, ABCDE criteria, and prevention tips.",
       inputSchema: {
