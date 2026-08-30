@@ -74,6 +74,7 @@ const TOOLS = [
 
     {
       name: "get_user_moles",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get all moles for a user with their current risk levels and last analysis dates. Use this to understand a user's overall skin health status.",
       inputSchema: {
@@ -89,6 +90,7 @@ const TOOLS = [
     },
     {
       name: "get_mole_analysis",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get detailed ML analysis results for a specific mole including ABCDE scores (Asymmetry, Border, Color, Diameter, Evolution). Use this to explain analysis results to users.",
       inputSchema: {
@@ -104,6 +106,7 @@ const TOOLS = [
     },
     {
       name: "get_mole_changes",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get the change history for a mole over time, including size changes, color changes, and trend analysis. Use this to explain how a mole has evolved.",
       inputSchema: {
@@ -119,6 +122,7 @@ const TOOLS = [
     },
     {
       name: "get_user_risk_factors",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get a user's skin cancer risk factors including skin type, family history, sun exposure habits, and calculated risk level. Use this for personalized advice.",
       inputSchema: {
@@ -134,6 +138,7 @@ const TOOLS = [
     },
     {
       name: "search_medical_info",
+      annotations: { readOnlyHint: true, openWorldHint: false },
       description:
         "Search the medical knowledge base for skin health information. Use this to provide accurate educational content about skin conditions, ABCDE criteria, and prevention tips.",
       inputSchema: {
@@ -149,6 +154,7 @@ const TOOLS = [
     },
     {
       name: "compare_moles",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Compare two mole images to identify changes. Use this when a user asks about changes between photos.",
       inputSchema: {
@@ -175,6 +181,7 @@ const TOOLS = [
     // ==========================================================================
     {
       name: "lookup_medical_concept",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Look up a medical concept by SNOMED CT code. Returns detailed information about skin conditions including severity and category. Use this to provide accurate medical terminology.",
       inputSchema: {
@@ -190,6 +197,7 @@ const TOOLS = [
     },
     {
       name: "search_medical_concepts",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Search for medical concepts by name or description. Returns matching SNOMED CT concepts for dermatology conditions.",
       inputSchema: {
@@ -205,6 +213,7 @@ const TOOLS = [
     },
     {
       name: "get_condition_progression",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get information about how a skin condition can progress. Shows potential progression paths (e.g., dysplastic nevus to melanoma).",
       inputSchema: {
@@ -220,6 +229,7 @@ const TOOLS = [
     },
     {
       name: "map_snomed_to_icd10",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Map a SNOMED CT code to ICD-10 diagnosis codes. Useful for understanding official diagnosis classifications.",
       inputSchema: {
@@ -235,6 +245,7 @@ const TOOLS = [
     },
     {
       name: "get_condition_risk_factors",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get risk factors associated with a specific condition. Returns factors like family history, skin type, UV exposure.",
       inputSchema: {
@@ -250,6 +261,7 @@ const TOOLS = [
     },
     {
       name: "assess_risk_from_factors",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Calculate risk assessment based on a list of risk factors. Returns combined relative risk and recommendations.",
       inputSchema: {
@@ -266,6 +278,7 @@ const TOOLS = [
     },
     {
       name: "classify_lesion_features",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Classify a lesion based on its ABCDE features. Returns possible conditions, risk level, and recommendations. Use this to help interpret mole analysis results.",
       inputSchema: {
@@ -297,6 +310,7 @@ const TOOLS = [
     },
     {
       name: "get_malignant_conditions",
+      annotations: { readOnlyHint: true, openWorldHint: true },
       description:
         "Get a list of all malignant skin conditions in the ontology. Use for educational purposes about skin cancers.",
       inputSchema: {
