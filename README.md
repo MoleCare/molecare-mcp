@@ -287,6 +287,13 @@ Thank you to everyone who has helped molecare-mcp.
 				</a>
 			</td>
 			<td align="center">
+				<a href="https://github.com/adity982">
+					<img src="https://avatars.githubusercontent.com/adity982?s=48" width="48" alt="ADITYA " />
+					<br />
+					<sub><b>ADITYA </b></sub>
+				</a>
+			</td>
+			<td align="center">
 				<a href="https://github.com/kkkhs">
 					<img src="https://avatars.githubusercontent.com/kkkhs?s=48" width="48" alt="Huangshuo Kuang" />
 					<br />
