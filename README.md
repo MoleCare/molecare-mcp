@@ -272,6 +272,13 @@ Thank you to everyone who has helped molecare-mcp.
 				</a>
 			</td>
 			<td align="center">
+				<a href="https://github.com/komallsingh">
+					<img src="https://avatars.githubusercontent.com/komallsingh?s=48" width="48" alt="Komal Singh" />
+					<br />
+					<sub><b>Komal Singh</b></sub>
+				</a>
+			</td>
+			<td align="center">
 				<a href="https://github.com/kkkhs">
 					<img src="https://avatars.githubusercontent.com/kkkhs?s=48" width="48" alt="Huangshuo Kuang" />
 					<br />
@@ -283,13 +290,6 @@ Thank you to everyone who has helped molecare-mcp.
 					<img src="https://avatars.githubusercontent.com/YuuGR1337?s=48" width="48" alt="Elkero" />
 					<br />
 					<sub><b>Elkero</b></sub>
-				</a>
-			</td>
-			<td align="center">
-				<a href="https://github.com/komallsingh">
-					<img src="https://avatars.githubusercontent.com/komallsingh?s=48" width="48" alt="Komal Singh" />
-					<br />
-					<sub><b>Komal Singh</b></sub>
 				</a>
 			</td>
 		</tr>
