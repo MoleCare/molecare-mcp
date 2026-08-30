@@ -47,6 +47,7 @@ import { cache, CACHE_TTL } from "./utils/cache.js";
 import { validateInput, TOOL_SCHEMAS } from "./utils/validation.js";
 import { logger, createTimer } from "./utils/logger.js";
 import { performHealthCheck, formatUptime } from "./utils/health.js";
+import { printHelp, printVersion, resolveCliAction } from "./cli.js";
 
 // Initialize API client
 const apiClient = new MoleCareApiClient({
@@ -3272,6 +3273,16 @@ async function main() {
   await server.connect(transport);
 
   console.error("MoleCare MCP Server running");
+}
+
+const cliAction = resolveCliAction(process.argv);
+if (cliAction === "version") {
+  printVersion();
+  process.exit(0);
+}
+if (cliAction === "help") {
+  printHelp();
+  process.exit(0);
 }
 
 main().catch((error) => {
