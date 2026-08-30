@@ -91,7 +91,7 @@ const dbClient = new DatabaseClient({
 const server = new Server(
   {
     name: "molecare-ops-mcp",
-    version: "1.0.0",
+    version: "1.1.0",
   },
   {
     capabilities: {
