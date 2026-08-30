@@ -56,7 +56,7 @@ const medicalKB = new MedicalKnowledgeBase();
 const server = new Server(
   {
     name: "molecare-mcp",
-    version: "1.0.0",
+    version: "1.1.0",
   },
   {
     capabilities: {
