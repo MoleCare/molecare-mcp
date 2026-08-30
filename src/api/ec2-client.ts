@@ -273,6 +273,14 @@ export class EC2Client {
       };
     }
 
+    if (this.useMockData) {
+      return {
+        instanceId,
+        httpHealthy: true,
+        responseTimeMs: 0,
+      };
+    }
+
     const healthUrl = instance.publicIp
       ? `http://${instance.publicIp}:8080/health`
       : `http://${instance.privateIp}:8080/health`;

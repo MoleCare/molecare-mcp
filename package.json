@@ -42,6 +42,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "test": "npm run build && node --test tests/mock-mode-smoke.mjs",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "inspect": "npx @anthropic-ai/mcp-inspector dist/index.js",
@@ -67,7 +68,6 @@
     }
   },
   "devDependencies": {
-    "@types/express": "^5.0.6",
     "@types/node": "^20.10.0",
     "tsx": "^4.6.0",
     "typescript": "^5.3.0"
