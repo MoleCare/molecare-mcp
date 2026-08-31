@@ -82,6 +82,18 @@ jobs:
             '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
             '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"map_snomed_to_icd10","arguments":{"snomedCode":"372244006"}}}' \
             > in.jsonl
-          timeout 60 node node_modules/molecare-mcp/dist/index.js < in.jsonl > out.jsonl 2>/dev/null || true
-          grep -q '"C43"' out.jsonl || { echo "expected C43 in the response"; cat out.jsonl; exit 1; }
+          # The server is long-lived by design, so it never exits on stdin EOF —
+          # timeout ends it once the responses are written.
+          timeout 20 node node_modules/molecare-mcp/dist/index.js < in.jsonl > out.jsonl 2>/dev/null || true
+          # The tool payload is JSON encoded inside the JSON-RPC envelope, so the
+          # inner quotes arrive escaped as \"C43\". Assert on the code itself
+          # rather than a quoting form that depends on the envelope.
+          node -e '
+            const lines = require("fs").readFileSync("out.jsonl","utf8").trim().split("\n");
+            const call = lines.map(l => JSON.parse(l)).find(m => m.id === 2);
+            const text = call?.result?.content?.[0]?.text ?? "";
+            const codes = (JSON.parse(text).icd10Mappings ?? []).map(m => m.icd10Code);
+            if (!codes.includes("C43")) { console.error("expected C43, got", codes); process.exit(1); }
+            console.log("server returned C43 with no configuration");
+          '
           echo "server answered correctly with no configuration"
