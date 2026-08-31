@@ -61,6 +61,7 @@ test("--version exits 0 and prints the package version", () => {
 
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.stdout.trim(), getPackageVersion());
+  assert.equal(result.stderr, "");
 });
 
 test("--help exits 0 without starting stdio transport", () => {
