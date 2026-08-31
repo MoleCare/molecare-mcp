@@ -4,6 +4,8 @@ import { test } from "node:test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
+// The 14 tools this server exposes. The ops tooling moved to molecare-ops-mcp
+// (dist/ops.js); its tools are covered by that binary, not this list.
 const EXPECTED_TOOL_NAMES = [
   "get_user_moles",
   "get_mole_analysis",
@@ -19,45 +21,6 @@ const EXPECTED_TOOL_NAMES = [
   "assess_risk_from_factors",
   "classify_lesion_features",
   "get_malignant_conditions",
-  "get_app_status",
-  "get_kubernetes_status",
-  "get_deployments",
-  "get_service_health",
-  "get_database_status",
-  "get_pipeline_runs",
-  "get_pipeline_summary",
-  "get_training_runs",
-  "get_deployment_status",
-  "get_releases",
-  "get_mlflow_experiments",
-  "get_mlflow_runs",
-  "get_registered_models",
-  "get_model_version",
-  "compare_model_runs",
-  "get_feature_views",
-  "get_feature_view_details",
-  "get_feature_freshness",
-  "get_online_features",
-  "get_feature_store_stats",
-  "get_system_health",
-  "clear_cache",
-  "get_ec2_instances",
-  "get_ec2_instance",
-  "get_ec2_health",
-  "get_ec2_metrics",
-  "check_server_health",
-  "get_web_app_status",
-  "get_mobile_api_status",
-  "get_all_apps_status",
-  "get_app_metrics",
-  "get_app_errors",
-  "get_app_versions",
-  "get_app_store_status",
-  "get_database_metrics",
-  "get_slow_queries",
-  "get_table_stats",
-  "get_backup_history",
-  "get_connection_pools",
 ];
 
 const EXPECTED_RESOURCE_URIS = [
@@ -68,10 +31,6 @@ const EXPECTED_RESOURCE_URIS = [
   "molecare://ontology/snomed-codes",
   "molecare://ontology/icd10-codes",
   "molecare://ontology/risk-factors",
-  "molecare://devops/architecture",
-  "molecare://devops/runbooks",
-  "molecare://mlops/model-catalog",
-  "molecare://mlops/feature-catalog",
 ];
 
 const TOOL_ARGUMENTS = {
