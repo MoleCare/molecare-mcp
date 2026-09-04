@@ -127,7 +127,7 @@ base and need no API, no key, and no network.
 | `search_medical_concepts` | Search conditions by name or description |
 | `map_snomed_to_icd10` | Map a SNOMED CT code to ICD-10 |
 | `classify_lesion_features` | ABCDE-style feature descriptors for a lesion |
-| `assess_risk_from_factors` | Educational risk scoring from stated risk factors |
+| `assess_risk_from_factors` | Named educational risk factors (no score) |
 | `get_condition_risk_factors` | Known risk factors for a condition |
 | `get_condition_progression` | Typical progression stages for a condition |
 | `get_malignant_conditions` | Malignant skin conditions with codes |
