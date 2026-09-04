@@ -39,6 +39,10 @@ import { cache, CACHE_TTL } from "./utils/cache.js";
 import { logger } from "./utils/logger.js";
 import { performHealthCheck, formatUptime } from "./utils/health.js";
 import { registerTools, startServer, type ToolContext } from "./runtime.js";
+<<<<<<< Updated upstream
+=======
+import { MlflowTools } from "./tools/mlflow.js";
+>>>>>>> Stashed changes
 
 // The ops server also probes the MoleCare backend as part of get_system_health
 const apiClient = new MoleCareApiClient({
@@ -51,6 +55,7 @@ const mlflowClient = new MLflowApiClient({
   baseUrl: process.env.MLFLOW_TRACKING_URI || "http://localhost:5000",
   apiKey: process.env.MLFLOW_API_KEY,
 });
+const mlflowTools = new MlflowTools(mlflowClient);
 
 const infraClient = new InfrastructureClient({
   webAppUrl: process.env.WEB_APP_URL,
@@ -260,6 +265,7 @@ const OPS_TOOLS = [
         required: [],
       },
     },
+<<<<<<< Updated upstream
     // ==========================================================================
     // MLFLOW & MODEL REGISTRY TOOLS
     // ==========================================================================
@@ -341,6 +347,9 @@ const OPS_TOOLS = [
         required: ["runIds"],
       },
     },
+=======
+    ...mlflowTools.tools,
+>>>>>>> Stashed changes
     // ==========================================================================
     // FEAST FEATURE STORE TOOLS
     // ==========================================================================
@@ -705,12 +714,16 @@ const TOOL_COSTS: Record<string, number> = {
   get_training_runs: 2,
   get_deployment_status: 1,
   get_releases: 1,
+<<<<<<< Updated upstream
   // MLflow tools
   get_mlflow_experiments: 1,
   get_mlflow_runs: 2,
   get_registered_models: 1,
   get_model_version: 1,
   compare_model_runs: 3,
+=======
+  ...mlflowTools.costs,
+>>>>>>> Stashed changes
   // Feast Feature Store tools
   get_feature_views: 1,
   get_feature_view_details: 1,
@@ -749,6 +762,12 @@ async function dispatch(
 ) {
   const { userId, timer } = ctx;
 
+<<<<<<< Updated upstream
+=======
+  const mlflowResult = await mlflowTools.dispatch(name, args, ctx);
+  if (mlflowResult) return mlflowResult;
+
+>>>>>>> Stashed changes
   switch (name) {
 
       case "get_app_status": {
