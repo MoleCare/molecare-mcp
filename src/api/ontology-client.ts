@@ -7,6 +7,10 @@
  */
 
 import axios, { AxiosInstance } from "axios";
+import {
+  TERMINOLOGY_PROVENANCE,
+  type MappingExactness,
+} from "../resources/terminology-provenance.js";
 
 interface OntologyApiConfig {
   baseUrl: string;
@@ -28,6 +32,10 @@ interface Diagnosis {
   description: string;
   category: string;
   chapter: string;
+  /** Whether the SNOMED→ICD-10 link is exact or a category-level approximation. */
+  mappingExactness?: MappingExactness;
+  /** Named source for this mapping row. */
+  source?: string;
 }
 
 interface RiskFactor {
@@ -262,9 +270,11 @@ export class OntologyApiClient {
 
   // ==========================================================================
   // MOCK DATA - For development/testing
+  // Provenance: see TERMINOLOGY_PROVENANCE in terminology-provenance.ts
   // ==========================================================================
 
   private getMockConcept(snomedCode: string): Concept | null {
+    // SNOMED CT International Edition concepts (see TERMINOLOGY_PROVENANCE.snomedCt).
     const concepts: Record<string, Concept> = {
       "372244006": {
         snomedCode: "372244006",
@@ -350,23 +360,33 @@ export class OntologyApiClient {
   }
 
   private getMockIcd10Mappings(snomedCode: string): Diagnosis[] {
+    // Category-level WHO ICD-10 mappings (see TERMINOLOGY_PROVENANCE.snomedToIcd10).
+    const approx = TERMINOLOGY_PROVENANCE.snomedToIcd10.exactness;
+    const source =
+      `${TERMINOLOGY_PROVENANCE.snomedCt.edition}; ` +
+      `${TERMINOLOGY_PROVENANCE.icd10.revision}; ` +
+      `last checked ${TERMINOLOGY_PROVENANCE.snomedCt.lastChecked}`;
     const mappings: Record<string, Diagnosis[]> = {
       "372244006": [
         {
           icd10Code: "C43",
           name: "Malignant melanoma of skin",
-          description: "Primary malignant melanoma",
+          description: "Primary malignant melanoma (category-level; not site-specific)",
           category: "Neoplasms",
           chapter: "Chapter II",
+          mappingExactness: approx,
+          source,
         },
       ],
       "21119008": [
         {
           icd10Code: "D22",
           name: "Melanocytic naevi",
-          description: "Benign melanocytic lesions",
+          description: "Benign melanocytic lesions (category-level)",
           category: "Neoplasms",
           chapter: "Chapter II",
+          mappingExactness: approx,
+          source,
         },
       ],
     };

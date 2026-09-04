@@ -79,7 +79,7 @@ export const GetFeatureViewDetailsSchema = z.object({
 
 export const GetOnlineFeaturesSchema = z.object({
   featureView: z.string().min(1, "featureView is required"),
-  entityKey: z.record(z.unknown()).refine(
+  entityKey: z.record(z.string(), z.unknown()).refine(
     (obj) => Object.keys(obj).length > 0,
     "entityKey must have at least one key"
   ),
@@ -193,7 +193,7 @@ export function validateInput<T>(
   }
 
   // Format Zod errors nicely
-  const errors = result.error.errors
+  const errors = result.error.issues
     .map((e) => `${e.path.join(".")}: ${e.message}`)
     .join("; ");
 

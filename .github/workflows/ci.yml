@@ -1,0 +1,99 @@
+name: CI
+
+# Runs on pull requests from forks as well as branches. Nothing here needs a
+# secret, so the default read-only GITHUB_TOKEN on fork PRs is sufficient.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build and test (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 18 is the floor declared in engines; 22 is current LTS.
+        node: ['18', '22']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      # ci, not install: the lockfile is the point. This is what catches a
+      # dependency change that only works against a stale node_modules.
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck and build
+        run: npm run build
+
+      - name: Both binaries emitted
+        run: |
+          test -f dist/index.js || { echo "dist/index.js missing"; exit 1; }
+          test -f dist/ops.js   || { echo "dist/ops.js missing"; exit 1; }
+
+      - name: Test
+        run: npm test
+
+  package:
+    name: package installs clean
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+      # Install the tarball into an empty directory, the way a user gets it.
+      # Guards the packaging arrangement: the AWS SDK is an optional peer and
+      # must not arrive with a default install.
+      - name: Install the tarball as a consumer would
+        run: |
+          npm pack
+          mkdir -p /tmp/consumer && cd /tmp/consumer
+          npm init -y > /dev/null
+          npm i "$GITHUB_WORKSPACE"/molecare-mcp-*.tgz
+          test -f node_modules/.bin/molecare-mcp || { echo "bin not linked"; exit 1; }
+          if [ -d node_modules/@aws-sdk ]; then
+            echo "@aws-sdk was installed by default — the optional peer arrangement has regressed"
+            exit 1
+          fi
+
+      - name: Server answers over stdio with no credentials
+        run: |
+          cd /tmp/consumer
+          printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}' \
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"map_snomed_to_icd10","arguments":{"snomedCode":"372244006"}}}' \
+            > in.jsonl
+          # The server is long-lived by design, so it never exits on stdin EOF —
+          # timeout ends it once the responses are written.
+          timeout 20 node node_modules/molecare-mcp/dist/index.js < in.jsonl > out.jsonl 2>/dev/null || true
+          # The tool payload is JSON encoded inside the JSON-RPC envelope, so the
+          # inner quotes arrive escaped as \"C43\". Assert on the code itself
+          # rather than a quoting form that depends on the envelope.
+          node -e '
+            const lines = require("fs").readFileSync("out.jsonl","utf8").trim().split("\n");
+            const call = lines.map(l => JSON.parse(l)).find(m => m.id === 2);
+            const text = call?.result?.content?.[0]?.text ?? "";
+            const codes = (JSON.parse(text).icd10Mappings ?? []).map(m => m.icd10Code);
+            if (!codes.includes("C43")) { console.error("expected C43, got", codes); process.exit(1); }
+            console.log("server returned C43 with no configuration");
+          '
+          echo "server answered correctly with no configuration"

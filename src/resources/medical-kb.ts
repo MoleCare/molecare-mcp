@@ -5,6 +5,10 @@
  * Contains educational information about skin health, mole analysis,
  * and cancer prevention. This is NOT medical advice - always recommend
  * users consult healthcare professionals.
+ *
+ * Clinical terminology (SNOMED CT concepts, ICD-10 codes, and mappings)
+ * lives in `src/api/ontology-client.ts` and the `molecare://ontology/*`
+ * resources — see `terminology-provenance.ts` for named, dated sources.
  */
 
 interface KnowledgeEntry {
@@ -13,6 +17,11 @@ interface KnowledgeEntry {
   details: string;
   significance: string;
   examples?: string[];
+  /**
+   * Extra search terms that a user is likely to type but that do not appear
+   * in the prose above: acronyms, British spellings, and common synonyms.
+   */
+  keywords?: string[];
 }
 
 interface Resource {
@@ -24,6 +33,7 @@ interface Resource {
 const KNOWLEDGE_BASE: Record<string, KnowledgeEntry> = {
   asymmetry: {
     term: "Asymmetry",
+    keywords: ["abcde", "symmetry", "shape", "uneven"],
     definition: "When one half of a mole does not match the other half",
     details:
       "Benign moles are typically symmetric. If you draw a line through the middle, both halves should look similar. Asymmetry can be a warning sign that should be monitored.",
@@ -38,6 +48,7 @@ const KNOWLEDGE_BASE: Record<string, KnowledgeEntry> = {
 
   border: {
     term: "Border",
+    keywords: ["abcde", "edge", "edges", "outline", "margin"],
     definition: "The edges or outline of a mole",
     details:
       "Healthy moles typically have smooth, even borders. Irregular, ragged, notched, or blurred borders can be concerning and should be monitored.",
@@ -52,6 +63,7 @@ const KNOWLEDGE_BASE: Record<string, KnowledgeEntry> = {
 
   color: {
     term: "Color",
+    keywords: ["abcde", "colour", "pigment", "pigmentation"],
     definition: "The pigmentation within a mole",
     details:
       "Most benign moles are a single shade of brown. Multiple colors or uneven distribution of color can be a warning sign. Watch for shades of black, red, white, or blue.",
@@ -66,6 +78,7 @@ const KNOWLEDGE_BASE: Record<string, KnowledgeEntry> = {
 
   diameter: {
     term: "Diameter",
+    keywords: ["abcde", "size", "width", "6mm", "large"],
     definition: "The size of a mole measured across its widest point",
     details:
       "Melanomas are often larger than 6mm (about the size of a pencil eraser) when diagnosed. However, they can be smaller when first detected.",
@@ -80,6 +93,7 @@ const KNOWLEDGE_BASE: Record<string, KnowledgeEntry> = {
 
   evolution: {
     term: "Evolution",
+    keywords: ["abcde", "change", "changing", "evolving", "growth"],
     definition: "Changes in a mole over time",
     details:
       "Any change in a mole's size, shape, color, elevation, or any new symptom such as bleeding, itching, or crusting can be significant.",
@@ -95,6 +109,7 @@ const KNOWLEDGE_BASE: Record<string, KnowledgeEntry> = {
 
   melanoma: {
     term: "Melanoma",
+    keywords: ["skin cancer", "cancer", "malignant", "tumour", "tumor"],
     definition:
       "A type of skin cancer that develops from the cells that give skin its color",
     details:
@@ -110,6 +125,7 @@ const KNOWLEDGE_BASE: Record<string, KnowledgeEntry> = {
 
   "skin-types": {
     term: "Fitzpatrick Skin Types",
+    keywords: ["fitzpatrick", "skin type", "phototype", "burns"],
     definition: "A classification system for skin based on its response to sun exposure",
     details:
       "Type I: Very fair, always burns. Type II: Fair, usually burns. Type III: Medium, sometimes burns. Type IV: Olive, rarely burns. Type V: Brown, very rarely burns. Type VI: Dark brown/black, never burns.",
@@ -120,6 +136,7 @@ const KNOWLEDGE_BASE: Record<string, KnowledgeEntry> = {
 
   sunscreen: {
     term: "Sunscreen",
+    keywords: ["spf", "sunblock", "suncream", "sun cream", "sun protection"],
     definition: "A product that protects skin from UV radiation damage",
     details:
       "SPF (Sun Protection Factor) indicates protection against UVB rays. Broad-spectrum sunscreens also protect against UVA rays. Apply generously 15-30 minutes before sun exposure.",
@@ -134,6 +151,7 @@ const KNOWLEDGE_BASE: Record<string, KnowledgeEntry> = {
 
   "self-examination": {
     term: "Skin Self-Examination",
+    keywords: ["self exam", "self-check", "mole check", "screening"],
     definition: "Regular checking of your own skin for new or changing moles",
     details:
       "Perform monthly self-exams. Use mirrors to check hard-to-see areas. Pay attention to any new moles or changes in existing ones. Document with photos.",
@@ -148,6 +166,7 @@ const KNOWLEDGE_BASE: Record<string, KnowledgeEntry> = {
 
   "uv-protection": {
     term: "UV Protection",
+    keywords: ["uv", "ultraviolet", "sun safety", "shade", "sun protection"],
     definition: "Methods to protect skin from ultraviolet radiation",
     details:
       "UV protection includes sunscreen, protective clothing, seeking shade, and avoiding peak sun hours (10am-4pm). UV exposure is cumulative over lifetime.",
@@ -323,36 +342,64 @@ const RESOURCES: Record<string, Resource> = {
   },
 };
 
+/**
+ * Rank an entry against a query.
+ *
+ * Fields are weighted so that a name match beats a passing mention in the
+ * prose: searching "melanoma" should return the Melanoma entry, not whichever
+ * ABCDE criterion happens to mention melanoma first. Every field is searched,
+ * including `significance` and `examples` — leaving `significance` out was why
+ * "ABCDE" returned nothing, since that is the only field naming the acronym.
+ */
+function scoreEntry(key: string, entry: KnowledgeEntry, query: string): number {
+  const keywords = (entry.keywords || []).map((k) => k.toLowerCase());
+  const name = `${key.replace(/-/g, " ")} ${entry.term}`.toLowerCase();
+
+  // An exact hit on the entry's name or one of its synonyms wins outright.
+  let score = 0;
+  if (name.split(" ").includes(query) || entry.term.toLowerCase() === query || keywords.includes(query)) {
+    score += 100;
+  }
+
+  const fields: Array<[string, number]> = [
+    [name, 10],
+    [keywords.join(" "), 8],
+    [entry.definition.toLowerCase(), 4],
+    [
+      `${entry.details} ${entry.significance} ${(entry.examples || []).join(" ")}`.toLowerCase(),
+      2,
+    ],
+  ];
+
+  const words = query.split(/\s+/).filter((w) => w.length > 2);
+
+  for (const [text, weight] of fields) {
+    if (!text) continue;
+    if (text.includes(query)) score += weight * 2; // whole phrase
+    for (const word of words) {
+      if (text.includes(word)) score += weight;
+    }
+  }
+
+  return score;
+}
+
 export class MedicalKnowledgeBase {
   /**
    * Search the knowledge base for relevant information
    */
   search(query: string): KnowledgeEntry[] {
     const normalizedQuery = query.toLowerCase().trim();
-    const results: KnowledgeEntry[] = [];
+    if (!normalizedQuery) return [];
 
-    for (const [key, entry] of Object.entries(KNOWLEDGE_BASE)) {
-      const searchableText = `${key} ${entry.term} ${entry.definition} ${entry.details}`.toLowerCase();
+    const scored = Object.entries(KNOWLEDGE_BASE)
+      .map(([key, entry]) => ({ entry, score: scoreEntry(key, entry, normalizedQuery) }))
+      .filter((r) => r.score > 0)
+      .sort((a, b) => b.score - a.score);
 
-      if (searchableText.includes(normalizedQuery)) {
-        results.push(entry);
-      }
-    }
-
-    // If no exact matches, try partial matching
-    if (results.length === 0) {
-      const queryWords = normalizedQuery.split(" ");
-
-      for (const [key, entry] of Object.entries(KNOWLEDGE_BASE)) {
-        const searchableText = `${key} ${entry.term} ${entry.definition} ${entry.details}`.toLowerCase();
-
-        if (queryWords.some((word) => searchableText.includes(word))) {
-          results.push(entry);
-        }
-      }
-    }
-
-    return results.slice(0, 5); // Return top 5 results
+    // `keywords` is search plumbing, not medical content - keep it out of the
+    // response so the tool's output shape is unchanged.
+    return scored.slice(0, 5).map(({ entry: { keywords, ...entry } }) => entry);
   }
 
   /**
