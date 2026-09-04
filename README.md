@@ -133,7 +133,24 @@ base and need no API, no key, and no network.
 | `get_malignant_conditions` | Malignant skin conditions with codes |
 
 **Resources:** `molecare://knowledge/*` — ABCDE criteria, Fitzpatrick skin types,
-prevention, when to see a dermatologist, SNOMED CT and ICD-10 references.
+prevention, when to see a dermatologist. `molecare://ontology/*` — SNOMED CT and
+ICD-10 reference lists with provenance metadata.
+
+### Terminology provenance
+
+Bundled SNOMED CT / ICD-10 helpers are an **educational subset**, not a licensed
+terminology distribution. Named sources live in
+[`src/resources/terminology-provenance.ts`](./src/resources/terminology-provenance.ts)
+and are returned on `map_snomed_to_icd10` and the ontology resources:
+
+| System | What this package reflects |
+|--------|----------------------------|
+| **SNOMED CT** | International Edition concept IDs / FSNs checked against the [SNOMED International browser](https://browser.ihtsdotools.org/) (last checked 2026-09-03) |
+| **ICD-10** | WHO ICD-10 **three-character category** codes (e.g. `C43`, `D22`), not ICD-10-CM site-specific codes |
+| **SNOMED → ICD-10** | **Approximate category-level** mappings — not certified one-to-one map rows |
+
+Mock concept and mapping rows live in `src/api/ontology-client.ts`. Educational
+prose without clinical codes lives in `src/resources/medical-kb.ts`.
 
 ### MoleCare product data — needs an API
 

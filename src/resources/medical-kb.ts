@@ -5,6 +5,10 @@
  * Contains educational information about skin health, mole analysis,
  * and cancer prevention. This is NOT medical advice - always recommend
  * users consult healthcare professionals.
+ *
+ * Clinical terminology (SNOMED CT concepts, ICD-10 codes, and mappings)
+ * lives in `src/api/ontology-client.ts` and the `molecare://ontology/*`
+ * resources — see `terminology-provenance.ts` for named, dated sources.
  */
 
 interface KnowledgeEntry {
