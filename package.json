@@ -43,7 +43,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test tests/mock-mode-smoke.mjs",
+    "test": "npm run build && node --test tests/*.mjs",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "inspect": "npx @anthropic-ai/mcp-inspector dist/index.js",
