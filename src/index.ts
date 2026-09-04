@@ -30,6 +30,7 @@ import {
 import { MoleCareApiClient } from "./api/molecare-client.js";
 import { OntologyApiClient } from "./api/ontology-client.js";
 import { MedicalKnowledgeBase } from "./resources/medical-kb.js";
+import { TERMINOLOGY_PROVENANCE } from "./resources/terminology-provenance.js";
 
 // Utilities
 import { cache, CACHE_TTL } from "./utils/cache.js";
@@ -611,6 +612,7 @@ async function dispatch(
                 {
                   snomedCode: args.snomedCode,
                   icd10Mappings: diagnoses,
+                  provenance: TERMINOLOGY_PROVENANCE,
                   disclaimer:
                     "This information is for educational purposes only and does not constitute medical advice.",
                 },
@@ -829,6 +831,7 @@ async function getOntologyResource(uri: string): Promise<any | null> {
       return {
         title: "SNOMED CT Dermatology Codes",
         description: "Clinical terminology codes for skin conditions",
+        provenance: TERMINOLOGY_PROVENANCE.snomedCt,
         disclaimer:
           "This information is for educational purposes only and does not constitute medical advice.",
         codes: [
@@ -881,6 +884,7 @@ async function getOntologyResource(uri: string): Promise<any | null> {
       return {
         title: "ICD-10 Skin Condition Codes",
         description: "International Classification of Diseases codes for skin diagnoses",
+        provenance: TERMINOLOGY_PROVENANCE.icd10,
         disclaimer:
           "This information is for educational purposes only and does not constitute medical advice.",
         codes: [
