@@ -8,6 +8,16 @@
 
 import axios, { AxiosInstance } from "axios";
 import {
+  educationalClassification,
+  educationalRiskReview,
+  sanitizeClassification,
+  sanitizeRiskAssessments,
+  type EducationalClassification,
+  type EducationalRiskReview,
+  type LesionFeatureInput,
+  type NamedRiskFactor,
+} from "../clinical-boundary.js";
+import {
   TERMINOLOGY_PROVENANCE,
   type MappingExactness,
 } from "../resources/terminology-provenance.js";
@@ -61,36 +71,7 @@ interface Progression {
   timeframe: string;
 }
 
-interface RiskAssessment {
-  presentRiskFactors: RiskFactor[];
-  combinedRelativeRisk: number;
-  overallRiskLevel: string;
-  elevatedRiskConditions: Concept[];
-  recommendation: string;
-}
-
-interface LesionFeatures {
-  asymmetry?: boolean;
-  irregularBorder?: boolean;
-  multipleColors?: boolean;
-  diameterMm?: number;
-  hasChanged?: boolean;
-  colorVariations?: string[];
-  bodyPart?: string;
-  riskFactorIds?: string[];
-}
-
-interface ClassificationResult {
-  possibleConditions: {
-    concept: Concept;
-    matchScore: number;
-    matchReason: string;
-  }[];
-  riskLevel: string;
-  abcdeScore: number;
-  recommendation: string;
-  requiresProfessionalEvaluation: boolean;
-}
+type LesionFeatures = LesionFeatureInput;
 
 interface ApiResponse<T> {
   success: boolean;
@@ -191,20 +172,33 @@ export class OntologyApiClient {
       const response = await this.client.get<ApiResponse<RiskFactor[]>>(
         `/concepts/${snomedCode}/risk-factors`
       );
-      return response.data.data;
+      return this.withoutRelativeRisk(response.data.data);
     } catch (error) {
       console.error("Failed to get risk factors:", error);
-      return this.getMockRiskFactors();
+      return this.withoutRelativeRisk(this.getMockRiskFactors());
     }
   }
 
-  async assessRisk(riskFactorIds: string[]): Promise<RiskAssessment[]> {
+  private withoutRelativeRisk(factors: RiskFactor[]): RiskFactor[] {
+    return factors.map(({ factorId, name, description, category }) => ({
+      factorId,
+      name,
+      description,
+      category,
+    }));
+  }
+
+  async assessRisk(riskFactorIds: string[]): Promise<EducationalRiskReview> {
+    const named = this.namedFactorsFromIds(riskFactorIds);
     try {
-      const response = await this.client.post<ApiResponse<RiskAssessment[]>>(
+      const response = await this.client.post<ApiResponse<unknown>>(
         `/risk-assessment`,
         { riskFactorIds }
       );
-      return response.data.data;
+      return sanitizeRiskAssessments(
+        this.namedFactorsFromRaw(response.data.data, named),
+        response.data.data
+      );
     } catch (error) {
       console.error("Failed to assess risk:", error);
       return this.getMockRiskAssessment(riskFactorIds);
@@ -243,13 +237,15 @@ export class OntologyApiClient {
   // CLASSIFICATION OPERATIONS
   // ==========================================================================
 
-  async classifyLesion(features: LesionFeatures): Promise<ClassificationResult> {
+  async classifyLesion(
+    features: LesionFeatures
+  ): Promise<EducationalClassification> {
     try {
-      const response = await this.client.post<ApiResponse<ClassificationResult>>(
+      const response = await this.client.post<ApiResponse<unknown>>(
         `/classify`,
         features
       );
-      return response.data.data;
+      return sanitizeClassification(features, response.data.data);
     } catch (error) {
       console.error("Failed to classify lesion:", error);
       return this.getMockClassification(features);
@@ -400,71 +396,72 @@ export class OntologyApiClient {
         name: "Fair skin (Fitzpatrick Type I-II)",
         description: "Light skin that burns easily",
         category: "GENETIC",
-        relativeRisk: 2.5,
       },
       {
         factorId: "FAMILY_HISTORY",
         name: "Family history of melanoma",
         description: "First-degree relative with melanoma",
         category: "GENETIC",
-        relativeRisk: 3.0,
       },
       {
         factorId: "MANY_MOLES",
         name: "Many moles (50+)",
         description: "Having more than 50 common moles",
         category: "PHENOTYPIC",
-        relativeRisk: 2.0,
       },
       {
         factorId: "UV_EXPOSURE",
         name: "Excessive UV exposure",
         description: "History of sunburns or tanning bed use",
         category: "ENVIRONMENTAL",
-        relativeRisk: 2.0,
       },
     ];
   }
 
-  private getMockRiskAssessment(riskFactorIds: string[]): RiskAssessment[] {
-    const factors = this.getMockRiskFactors().filter((rf) =>
-      riskFactorIds.includes(rf.factorId)
-    );
-    const combinedRisk = factors.reduce(
-      (acc, rf) => acc * (rf.relativeRisk || 1),
-      1
-    );
+  private namedFactorsFromIds(riskFactorIds: string[]): NamedRiskFactor[] {
+    return this.getMockRiskFactors()
+      .filter((rf) => riskFactorIds.includes(rf.factorId))
+      .map(({ factorId, name, description }) => ({
+        factorId,
+        name,
+        description,
+      }));
+  }
 
-    let riskLevel = "LOW";
-    let recommendation = "Continue regular self-monitoring and sun protection";
-
-    if (combinedRisk >= 5) {
-      riskLevel = "HIGH";
-      recommendation =
-        "Schedule dermatologist appointment for full skin examination";
-    } else if (combinedRisk >= 2) {
-      riskLevel = "MODERATE";
-      recommendation =
-        "Perform regular self-examinations and annual dermatologist visits";
+  private namedFactorsFromRaw(
+    raw: unknown,
+    fallback: NamedRiskFactor[]
+  ): NamedRiskFactor[] {
+    if (!Array.isArray(raw)) return fallback;
+    const collected: NamedRiskFactor[] = [];
+    for (const item of raw) {
+      if (!item || typeof item !== "object" || !("presentRiskFactors" in item)) {
+        continue;
+      }
+      const present = (item as { presentRiskFactors?: unknown })
+        .presentRiskFactors;
+      if (!Array.isArray(present)) continue;
+      for (const factor of present) {
+        if (!factor || typeof factor !== "object" || !("factorId" in factor)) {
+          continue;
+        }
+        const rec = factor as {
+          factorId: string;
+          name?: string;
+          description?: string;
+        };
+        collected.push({
+          factorId: rec.factorId,
+          name: rec.name ?? rec.factorId,
+          description: rec.description ?? "",
+        });
+      }
     }
+    return collected.length ? collected : fallback;
+  }
 
-    return [
-      {
-        presentRiskFactors: factors,
-        combinedRelativeRisk: combinedRisk,
-        overallRiskLevel: riskLevel,
-        elevatedRiskConditions: [
-          {
-            snomedCode: "372244006",
-            name: "Malignant melanoma of skin",
-            description: "Skin cancer from melanocytes",
-            category: "MALIGNANT",
-            severity: "HIGH",
-          },
-        ],
-        recommendation,
-      },
-    ];
+  private getMockRiskAssessment(riskFactorIds: string[]): EducationalRiskReview {
+    return educationalRiskReview(this.namedFactorsFromIds(riskFactorIds));
   }
 
   private getMockAbcdeCriteria(): Feature[] {
@@ -502,64 +499,10 @@ export class OntologyApiClient {
     ];
   }
 
-  private getMockClassification(features: LesionFeatures): ClassificationResult {
-    let abcdeScore = 0;
-    if (features.asymmetry) abcdeScore++;
-    if (features.irregularBorder) abcdeScore++;
-    if (features.multipleColors) abcdeScore++;
-    if (features.diameterMm && features.diameterMm > 6) abcdeScore++;
-    if (features.hasChanged) abcdeScore++;
-
-    let riskLevel = "LOW";
-    let recommendation = "No concerning features. Continue regular monitoring.";
-    let requiresProfessionalEvaluation = false;
-
-    if (abcdeScore >= 3) {
-      riskLevel = "HIGH";
-      recommendation =
-        "Multiple concerning features. Please consult a dermatologist promptly.";
-      requiresProfessionalEvaluation = true;
-    } else if (abcdeScore >= 1) {
-      riskLevel = "MODERATE";
-      recommendation =
-        "Some concerning features. Consider dermatologist evaluation.";
-      requiresProfessionalEvaluation = true;
-    }
-
-    return {
-      possibleConditions:
-        abcdeScore >= 3
-          ? [
-              {
-                concept: {
-                  snomedCode: "372244006",
-                  name: "Malignant melanoma of skin",
-                  description: "Skin cancer from melanocytes",
-                  category: "MALIGNANT",
-                  severity: "HIGH",
-                },
-                matchScore: 0.7,
-                matchReason: "High ABCDE score",
-              },
-            ]
-          : [
-              {
-                concept: {
-                  snomedCode: "21119008",
-                  name: "Pigmented nevus",
-                  description: "Benign mole",
-                  category: "BENIGN",
-                  severity: "LOW",
-                },
-                matchScore: 0.8,
-                matchReason: "Features consistent with benign mole",
-              },
-            ],
-      riskLevel,
-      abcdeScore,
-      recommendation,
-      requiresProfessionalEvaluation,
-    };
+  private getMockClassification(
+    features: LesionFeatures
+  ): EducationalClassification {
+    return educationalClassification(features);
   }
 
   private getMockMalignantConditions(): Concept[] {

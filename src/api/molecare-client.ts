@@ -19,15 +19,11 @@ interface Mole {
   nickname?: string;
   createdAt: string;
   lastAnalyzedAt?: string;
-  riskLevel: string;
   images?: any[];
 }
 
 interface Analysis {
   date: string;
-  score: number;
-  riskLevel: string;
-  confidence: number;
   asymmetryScore: number;
   borderScore: number;
   colorScore: number;
@@ -46,7 +42,6 @@ interface MoleHistory {
 interface UserProfile {
   skinType: number;
   riskFactors: string[];
-  riskLevel: string;
 }
 
 interface ImageComparison {
@@ -54,8 +49,6 @@ interface ImageComparison {
   colorChange: string;
   borderChange: string;
   overallChange: string;
-  significance: string;
-  recommendation: string;
 }
 
 export class MoleCareApiClient {
@@ -157,7 +150,6 @@ export class MoleCareApiClient {
         nickname: "Arm mole",
         createdAt: "2024-01-15T10:30:00Z",
         lastAnalyzedAt: "2024-12-20T14:00:00Z",
-        riskLevel: "LOW",
         images: [{}, {}, {}],
       },
       {
@@ -166,7 +158,6 @@ export class MoleCareApiClient {
         nickname: "Back mole",
         createdAt: "2024-03-22T09:15:00Z",
         lastAnalyzedAt: "2024-12-18T11:30:00Z",
-        riskLevel: "MODERATE",
         images: [{}, {}],
       },
       {
@@ -174,7 +165,6 @@ export class MoleCareApiClient {
         bodyPart: "Right Shoulder",
         createdAt: "2024-06-10T16:45:00Z",
         lastAnalyzedAt: "2024-12-15T10:00:00Z",
-        riskLevel: "LOW",
         images: [{}],
       },
     ];
@@ -183,9 +173,6 @@ export class MoleCareApiClient {
   private getMockAnalysis(moleId: string): Analysis {
     return {
       date: "2024-12-20T14:00:00Z",
-      score: 0.25,
-      riskLevel: "LOW",
-      confidence: 0.92,
       asymmetryScore: 0.15,
       borderScore: 0.2,
       colorScore: 0.18,
@@ -204,13 +191,11 @@ export class MoleCareApiClient {
           date: "2024-06-15",
           type: "SIZE",
           description: "Slight increase in diameter (+0.3mm)",
-          significance: "LOW",
         },
         {
           date: "2024-09-20",
           type: "COLOR",
           description: "No significant color change",
-          significance: "NONE",
         },
       ],
       trend: "STABLE",
@@ -221,7 +206,6 @@ export class MoleCareApiClient {
     return {
       skinType: 2,
       riskFactors: ["FAIR_SKIN", "OUTDOOR_ACTIVITY"],
-      riskLevel: "MODERATE",
     };
   }
 
@@ -230,9 +214,7 @@ export class MoleCareApiClient {
       sizeChangePercent: 5.2,
       colorChange: "No significant change",
       borderChange: "Borders remain well-defined",
-      overallChange: "Minor changes within normal range",
-      significance: "LOW",
-      recommendation: "Continue regular monitoring",
+      overallChange: "Small recorded differences",
     };
   }
 }

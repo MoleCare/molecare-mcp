@@ -28,6 +28,13 @@ import {
 
 import { MoleCareApiClient } from "./api/molecare-client.js";
 import { OntologyApiClient } from "./api/ontology-client.js";
+import {
+  EDUCATIONAL_ONLY_NOTE,
+  EDUCATIONAL_RISK_NOTE,
+  publicComparison,
+  publicHistoryChange,
+  publicMoleRecord,
+} from "./clinical-boundary.js";
 import { MedicalKnowledgeBase } from "./resources/medical-kb.js";
 import { TERMINOLOGY_PROVENANCE } from "./resources/terminology-provenance.js";
 
@@ -76,7 +83,7 @@ const TOOLS = [
       name: "get_user_moles",
       annotations: { readOnlyHint: true, openWorldHint: true },
       description:
-        "Get all moles for a user with their current risk levels and last analysis dates. Use this to understand a user's overall skin health status.",
+        "List a user's recorded moles and last photo dates. Educational records only — not a risk ranking.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -92,7 +99,7 @@ const TOOLS = [
       name: "get_mole_analysis",
       annotations: { readOnlyHint: true, openWorldHint: true },
       description:
-        "Get detailed ML analysis results for a specific mole including ABCDE scores (Asymmetry, Border, Color, Diameter, Evolution). Use this to explain analysis results to users.",
+        "Return recorded ABCDE feature measurements for a mole. Educational only — not a diagnosis or risk level.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -108,7 +115,7 @@ const TOOLS = [
       name: "get_mole_changes",
       annotations: { readOnlyHint: true, openWorldHint: true },
       description:
-        "Get the change history for a mole over time, including size changes, color changes, and trend analysis. Use this to explain how a mole has evolved.",
+        "Return recorded appearance changes for a mole over time. Observations only — not a trend verdict.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -124,7 +131,7 @@ const TOOLS = [
       name: "get_user_risk_factors",
       annotations: { readOnlyHint: true, openWorldHint: true },
       description:
-        "Get a user's skin cancer risk factors including skin type, family history, sun exposure habits, and calculated risk level. Use this for personalized advice.",
+        "List named educational skin-health factors on a user profile. Does not calculate a risk score.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -156,7 +163,7 @@ const TOOLS = [
       name: "compare_moles",
       annotations: { readOnlyHint: true, openWorldHint: true },
       description:
-        "Compare two mole images to identify changes. Use this when a user asks about changes between photos.",
+        "Compare two recorded mole photos. Reports observed differences only — not a diagnosis.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -263,7 +270,7 @@ const TOOLS = [
       name: "assess_risk_from_factors",
       annotations: { readOnlyHint: true, openWorldHint: true },
       description:
-        "Calculate risk assessment based on a list of risk factors. Returns combined relative risk and recommendations.",
+        "Describe named educational skin-health factors from a list of factor IDs. Does not calculate a risk score or recommend urgency.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -280,7 +287,7 @@ const TOOLS = [
       name: "classify_lesion_features",
       annotations: { readOnlyHint: true, openWorldHint: true },
       description:
-        "Classify a lesion based on its ABCDE features. Returns possible conditions, risk level, and recommendations. Use this to help interpret mole analysis results.",
+        "Describe which ABCDE criteria were supplied for a lesion. Educational only — does not name a condition, assign a risk level, or recommend urgency.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -362,20 +369,8 @@ async function dispatch(
                 {
                   userId: args.userId,
                   totalMoles: moles.length,
-                  moles: moles.map((m: any) => ({
-                    id: m.id,
-                    bodyPart: m.bodyPart,
-                    nickname: m.nickname,
-                    createdAt: m.createdAt,
-                    lastAnalyzedAt: m.lastAnalyzedAt,
-                    riskLevel: m.riskLevel,
-                    imageCount: m.images?.length || 0,
-                  })),
-                  summary: {
-                    highRisk: moles.filter((m: any) => m.riskLevel === "HIGH").length,
-                    moderateRisk: moles.filter((m: any) => m.riskLevel === "MODERATE").length,
-                    lowRisk: moles.filter((m: any) => m.riskLevel === "LOW").length,
-                  },
+                  moles: moles.map((m: any) => publicMoleRecord(m)),
+                  disclaimer: EDUCATIONAL_ONLY_NOTE,
                 },
                 null,
                 2
@@ -395,9 +390,6 @@ async function dispatch(
                 {
                   moleId: args.moleId,
                   analysisDate: analysis.date,
-                  overallScore: analysis.score,
-                  riskLevel: analysis.riskLevel,
-                  confidence: analysis.confidence,
                   abcdeScores: {
                     asymmetry: {
                       score: analysis.asymmetryScore,
@@ -421,7 +413,7 @@ async function dispatch(
                       description: getEvolutionDescription(analysis.evolutionScore),
                     },
                   },
-                  recommendation: getRecommendation(analysis.riskLevel),
+                  disclaimer: EDUCATIONAL_ONLY_NOTE,
                 },
                 null,
                 2
@@ -442,9 +434,12 @@ async function dispatch(
                   moleId: args.moleId,
                   trackingStarted: history.startDate,
                   totalImages: history.imageCount,
-                  changes: history.changes,
+                  changes: Array.isArray(history.changes)
+                    ? history.changes.map((c: any) => publicHistoryChange(c))
+                    : [],
                   trend: history.trend,
                   trendDescription: getTrendDescription(history.trend),
+                  disclaimer: EDUCATIONAL_ONLY_NOTE,
                 },
                 null,
                 2
@@ -465,8 +460,9 @@ async function dispatch(
                   userId: args.userId,
                   skinType: profile.skinType,
                   riskFactors: profile.riskFactors,
-                  overallRiskLevel: profile.riskLevel,
-                  recommendations: getPersonalizedRecommendations(profile),
+                  notes: getPersonalizedRecommendations(profile),
+                  note: EDUCATIONAL_RISK_NOTE,
+                  disclaimer: EDUCATIONAL_ONLY_NOTE,
                 },
                 null,
                 2
@@ -510,14 +506,13 @@ async function dispatch(
               text: JSON.stringify(
                 {
                   moleId: args.moleId,
-                  comparison: {
-                    sizeChange: comparison.sizeChangePercent,
+                  comparison: publicComparison({
+                    sizeChangePercent: comparison.sizeChangePercent,
                     colorChange: comparison.colorChange,
                     borderChange: comparison.borderChange,
                     overallChange: comparison.overallChange,
-                  },
-                  significance: comparison.significance,
-                  recommendation: comparison.recommendation,
+                  }),
+                  disclaimer: EDUCATIONAL_ONLY_NOTE,
                 },
                 null,
                 2
@@ -648,7 +643,7 @@ async function dispatch(
       }
 
       case "assess_risk_from_factors": {
-        const assessments = await ontologyClient.assessRisk(
+        const review = await ontologyClient.assessRisk(
           args.riskFactorIds as string[]
         );
         return {
@@ -658,9 +653,8 @@ async function dispatch(
               text: JSON.stringify(
                 {
                   inputFactors: args.riskFactorIds,
-                  assessments,
-                  disclaimer:
-                    "This risk assessment is for educational purposes only. Please consult a healthcare professional for personalized medical advice.",
+                  review,
+                  disclaimer: EDUCATIONAL_RISK_NOTE,
                 },
                 null,
                 2
@@ -692,8 +686,7 @@ async function dispatch(
                     hasChanged: args.hasChanged,
                   },
                   classification,
-                  disclaimer:
-                    "This classification is for educational purposes only and is NOT a medical diagnosis. Please consult a dermatologist for any skin concerns.",
+                  disclaimer: EDUCATIONAL_ONLY_NOTE,
                 },
                 null,
                 2
@@ -1018,43 +1011,28 @@ function getColorDescription(score: number): string {
 }
 
 function getDiameterDescription(diameter: number): string {
-  if (diameter < 6) return `${diameter}mm - within normal range`;
-  return `${diameter}mm - larger than 6mm (pencil eraser size)`;
+  if (diameter < 6) return `${diameter}mm — smaller than about 6 mm (pencil eraser size)`;
+  return `${diameter}mm — larger than about 6 mm (pencil eraser size)`;
 }
 
 function getEvolutionDescription(score: number): string {
-  if (score < 0.3) return "Stable - no significant changes detected";
-  if (score < 0.6) return "Some changes detected - continue monitoring";
-  return "Significant changes detected - recommend professional evaluation";
+  if (score < 0.3) return "Little recorded change over the comparison window";
+  if (score < 0.6) return "Some recorded change over the comparison window";
+  return "Larger recorded change over the comparison window";
 }
 
 function getTrendDescription(trend: string): string {
   switch (trend) {
     case "STABLE":
-      return "The mole has remained stable over time with no concerning changes.";
+      return "Recorded appearance has stayed similar across the comparison window.";
     case "SLIGHT_CHANGE":
-      return "Minor changes have been detected. Continue regular monitoring.";
+      return "Small recorded differences across the comparison window.";
     case "SIGNIFICANT_CHANGE":
-      return "Notable changes have been detected. Consider scheduling a dermatologist visit.";
+      return "Larger recorded differences across the comparison window.";
     case "RAPID_CHANGE":
-      return "Rapid changes detected. Please seek professional medical evaluation promptly.";
+      return "Faster recorded change across the comparison window.";
     default:
       return "Trend data not available.";
-  }
-}
-
-function getRecommendation(riskLevel: string): string {
-  switch (riskLevel) {
-    case "LOW":
-      return "Continue regular self-monitoring. Take a new photo every 1-3 months.";
-    case "MODERATE":
-      return "Monitor more frequently. Consider scheduling a routine dermatologist visit.";
-    case "ELEVATED":
-      return "Schedule a dermatologist appointment within the next 2 weeks.";
-    case "HIGH":
-      return "Please seek professional medical evaluation as soon as possible.";
-    default:
-      return "Continue regular monitoring and consult a healthcare provider if concerned.";
   }
 }
 
@@ -1062,15 +1040,15 @@ function getPersonalizedRecommendations(profile: any): string[] {
   const recommendations: string[] = [];
 
   if (profile.skinType <= 2) {
-    recommendations.push("Your fair skin type has higher UV sensitivity. Use SPF 30+ sunscreen daily.");
+    recommendations.push("Fairer skin types are often more sensitive to UV. Educational materials commonly mention daily sun protection.");
   }
 
   if (profile.riskFactors?.includes("FAMILY_HISTORY")) {
-    recommendations.push("Given your family history, annual professional skin exams are recommended.");
+    recommendations.push("Family history is a named educational factor. It does not mean a condition will develop.");
   }
 
   if (profile.riskFactors?.includes("MANY_MOLES")) {
-    recommendations.push("With multiple moles, regular self-examinations are important. Document any changes.");
+    recommendations.push("Having many moles is a named educational factor. Recording appearance over time is a common self-check habit.");
   }
 
   recommendations.push("Take photos of moles monthly to track any changes over time.");

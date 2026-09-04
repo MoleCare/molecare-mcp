@@ -62,7 +62,7 @@ account ID, bucket name, on-call address, or Slack channel.
 
 ## Before you open a pull request
 
-- [ ] `npm run build` passes with no TypeScript errors
+- [ ] `npm test` passes (build plus the mock-mode and clinical-boundary checks)
 - [ ] The server starts and the tool appears in `npm run inspect`
 - [ ] New tools have a Zod schema for their inputs and a clear description string
 - [ ] Anything medical carries a non-diagnostic disclaimer in the response
