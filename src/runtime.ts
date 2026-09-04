@@ -16,7 +16,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
-import { rateLimitService } from "./services/RateLimitService.js";
+import { rateLimitService } from "./services/rate-limit-service.js";
 import { validateInput, TOOL_SCHEMAS } from "./utils/validation.js";
 import { logger, createTimer } from "./utils/logger.js";
 
