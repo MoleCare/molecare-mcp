@@ -70,7 +70,7 @@
   "devDependencies": {
     "@aws-sdk/client-cloudwatch": "^3.1116.0",
     "@aws-sdk/client-ec2": "^3.1116.0",
-    "@types/node": "^26.3.0",
+    "@types/node": "^26.4.1",
     "tsx": "^4.6.0",
     "typescript": "^7.0.2"
   }
