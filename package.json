@@ -53,11 +53,11 @@
     "@modelcontextprotocol/sdk": "^1.30.0",
     "axios": "^1.19.0",
     "dotenv": "^17.4.2",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "peerDependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.1116.0",
-    "@aws-sdk/client-ec2": "^3.1116.0"
+    "@aws-sdk/client-cloudwatch": "^3.1125.0",
+    "@aws-sdk/client-ec2": "^3.1125.0"
   },
   "peerDependenciesMeta": {
     "@aws-sdk/client-cloudwatch": {
@@ -68,10 +68,10 @@
     }
   },
   "devDependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.1116.0",
-    "@aws-sdk/client-ec2": "^3.1116.0",
-    "@types/node": "^26.3.0",
-    "tsx": "^4.6.0",
+    "@aws-sdk/client-cloudwatch": "^3.1125.0",
+    "@aws-sdk/client-ec2": "^3.1125.0",
+    "@types/node": "^26.4.1",
+    "tsx": "^4.23.13",
     "typescript": "^7.0.2"
   }
 }
