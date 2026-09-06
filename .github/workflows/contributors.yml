@@ -37,16 +37,16 @@ jobs:
           || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
           persist-credentials: true
 
       - name: Fill README contributors
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: python3 .github/scripts/fill_contributors.py
+        uses: YauhenBichel/readme-contributors@dd5eb5b4251b0158662457256ca29c0de1e5444c # v1.5.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          format: html
 
       - name: Push the list on a writable branch
         if: >-
@@ -56,7 +56,7 @@ jobs:
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add README.md
+          git add README.md .github/contributors.svg .github/faces
           git diff --cached --quiet && exit 0
           git commit -m "docs: refresh README contributors"
           git push
