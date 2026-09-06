@@ -286,54 +286,12 @@ Please keep secrets out of examples and prefer localhost defaults.
 Thank you to everyone who has helped molecare-mcp.
 
 <!-- readme: contributors,bots/- -start -->
-<table>
-	<tbody>
-		<tr>
-			<td align="center">
-				<a href="https://github.com/YauhenBichel">
-					<img src="https://avatars.githubusercontent.com/YauhenBichel?s=48" width="48" alt="Yauhen Bichel" />
-					<br />
-					<sub><b>Yauhen Bichel</b></sub>
-				</a>
-			</td>
-			<td align="center">
-				<a href="https://github.com/komallsingh">
-					<img src="https://avatars.githubusercontent.com/komallsingh?s=48" width="48" alt="Komal Singh" />
-					<br />
-					<sub><b>Komal Singh</b></sub>
-				</a>
-			</td>
-			<td align="center">
-				<a href="https://github.com/Amiirhosseini">
-					<img src="https://avatars.githubusercontent.com/Amiirhosseini?s=48" width="48" alt="Amirreza Hosseini" />
-					<br />
-					<sub><b>Amirreza Hosseini</b></sub>
-				</a>
-			</td>
-			<td align="center">
-				<a href="https://github.com/adity982">
-					<img src="https://avatars.githubusercontent.com/adity982?s=48" width="48" alt="ADITYA " />
-					<br />
-					<sub><b>ADITYA </b></sub>
-				</a>
-			</td>
-			<td align="center">
-				<a href="https://github.com/kkkhs">
-					<img src="https://avatars.githubusercontent.com/kkkhs?s=48" width="48" alt="Huangshuo Kuang" />
-					<br />
-					<sub><b>Huangshuo Kuang</b></sub>
-				</a>
-			</td>
-			<td align="center">
-				<a href="https://github.com/YuuGR1337">
-					<img src="https://avatars.githubusercontent.com/YuuGR1337?s=48" width="48" alt="Elkero" />
-					<br />
-					<sub><b>Elkero</b></sub>
-				</a>
-			</td>
-		</tr>
-	</tbody>
-</table>
+<p align="center">
+  <img src=".github/contributors.svg" width="310" alt="Yauhen Bichel, Komal Singh, Amirreza Hosseini, ADITYA , Huangshuo Kuang, Elkero" />
+</p>
+<p align="center">
+  <a href="https://github.com/YauhenBichel">Yauhen Bichel</a><span> · </span><a href="https://github.com/komallsingh">Komal Singh</a><span> · </span><a href="https://github.com/Amiirhosseini">Amirreza Hosseini</a><span> · </span><a href="https://github.com/adity982">ADITYA </a><span> · </span><a href="https://github.com/kkkhs">Huangshuo Kuang</a><span> · </span><a href="https://github.com/YuuGR1337">Elkero</a>
+</p>
 <!-- readme: contributors,bots/- -end -->
 
 The list is filled by [Contributors](./.github/workflows/contributors.yml) from
