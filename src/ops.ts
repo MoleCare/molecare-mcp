@@ -39,6 +39,7 @@ import { cache, CACHE_TTL } from "./utils/cache.js";
 import { logger } from "./utils/logger.js";
 import { performHealthCheck, formatUptime } from "./utils/health.js";
 import { registerTools, startServer, type ToolContext } from "./runtime.js";
+import { MlflowTools } from "./tools/mlflow.js";
 
 // The ops server also probes the MoleCare backend as part of get_system_health
 const apiClient = new MoleCareApiClient({
@@ -51,6 +52,7 @@ const mlflowClient = new MLflowApiClient({
   baseUrl: process.env.MLFLOW_TRACKING_URI || "http://localhost:5000",
   apiKey: process.env.MLFLOW_API_KEY,
 });
+const mlflowTools = new MlflowTools(mlflowClient);
 
 const infraClient = new InfrastructureClient({
   webAppUrl: process.env.WEB_APP_URL,
@@ -260,87 +262,7 @@ const OPS_TOOLS = [
         required: [],
       },
     },
-    // ==========================================================================
-    // MLFLOW & MODEL REGISTRY TOOLS
-    // ==========================================================================
-    {
-      name: "get_mlflow_experiments",
-      description:
-        "List all MLflow experiments with their status and last update time.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {},
-        required: [],
-      },
-    },
-    {
-      name: "get_mlflow_runs",
-      description:
-        "Get MLflow runs for an experiment with metrics, parameters, and status.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          experimentId: {
-            type: "string",
-            description: "Experiment ID to query",
-          },
-          filter: {
-            type: "string",
-            description: "Optional filter string (e.g., 'metrics.auc > 0.9')",
-          },
-          limit: {
-            type: "number",
-            description: "Number of runs to return (default: 10)",
-          },
-        },
-        required: ["experimentId"],
-      },
-    },
-    {
-      name: "get_registered_models",
-      description:
-        "List all registered ML models in MLflow model registry with versions and stages.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {},
-        required: [],
-      },
-    },
-    {
-      name: "get_model_version",
-      description:
-        "Get details of a specific model version including stage, metrics, and run info.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          modelName: {
-            type: "string",
-            description: "Name of the registered model",
-          },
-          version: {
-            type: "string",
-            description: "Version number to query",
-          },
-        },
-        required: ["modelName", "version"],
-      },
-    },
-    {
-      name: "compare_model_runs",
-      description:
-        "Compare metrics between multiple MLflow runs to evaluate model performance.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          runIds: {
-            type: "array",
-            items: { type: "string" },
-            description: "Array of run IDs to compare",
-          },
-        },
-        required: ["runIds"],
-      },
-    },
+    ...mlflowTools.tools,
     // ==========================================================================
     // FEAST FEATURE STORE TOOLS
     // ==========================================================================
@@ -705,12 +627,7 @@ const TOOL_COSTS: Record<string, number> = {
   get_training_runs: 2,
   get_deployment_status: 1,
   get_releases: 1,
-  // MLflow tools
-  get_mlflow_experiments: 1,
-  get_mlflow_runs: 2,
-  get_registered_models: 1,
-  get_model_version: 1,
-  compare_model_runs: 3,
+  ...mlflowTools.costs,
   // Feast Feature Store tools
   get_feature_views: 1,
   get_feature_view_details: 1,
@@ -748,6 +665,9 @@ async function dispatch(
   ctx: ToolContext
 ) {
   const { userId, timer } = ctx;
+
+  const mlflowResult = await mlflowTools.dispatch(name, args, ctx);
+  if (mlflowResult) return mlflowResult;
 
   switch (name) {
 
@@ -1052,185 +972,10 @@ async function dispatch(
       }
 
       // ========================================================================
-      // MLFLOW & MODEL REGISTRY TOOL HANDLERS
-      // ========================================================================
 
-      case "get_mlflow_experiments": {
-        // Cache experiments for 5 minutes (they don't change often)
-        const experiments = await cache.getOrFetch(
-          "mlflow:experiments",
-          () => mlflowClient.listExperiments(),
-          CACHE_TTL.LONG
-        );
 
-        logger.toolCall({
-          tool: name,
-          args: {},
-          duration_ms: timer(),
-          success: true,
-          userId,
-        });
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  experiments: experiments.map((e) => ({
-                    id: e.experimentId,
-                    name: e.name,
-                    lifecycleStage: e.lifecycleStage,
-                    lastUpdated: new Date(e.lastUpdateTime).toISOString(),
-                    tags: e.tags,
-                  })),
-                  count: experiments.length,
-                },
-                null,
-                2
-              ),
-            },
-          ],
-        };
-      }
 
-      case "get_mlflow_runs": {
-        const experimentId = args.experimentId as string;
-        const filter = args.filter as string | undefined;
-        const limit = (args.limit as number) || 10;
-
-        const runs = await mlflowClient.searchRuns([experimentId], filter, limit);
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  experimentId,
-                  runs: runs.map((r) => ({
-                    runId: r.runId,
-                    status: r.status,
-                    startTime: new Date(r.startTime).toISOString(),
-                    endTime: r.endTime ? new Date(r.endTime).toISOString() : null,
-                    metrics: Object.fromEntries(r.metrics.map((m) => [m.key, m.value])),
-                    params: Object.fromEntries(r.params.map((p) => [p.key, p.value])),
-                    tags: r.tags,
-                  })),
-                  count: runs.length,
-                },
-                null,
-                2
-              ),
-            },
-          ],
-        };
-      }
-
-      case "get_registered_models": {
-        // Cache models for 5 minutes
-        const models = await cache.getOrFetch(
-          "mlflow:registered_models",
-          () => mlflowClient.listRegisteredModels(),
-          CACHE_TTL.LONG
-        );
-
-        logger.toolCall({
-          tool: name,
-          args: {},
-          duration_ms: timer(),
-          success: true,
-          userId,
-        });
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  models: models.map((m) => ({
-                    name: m.name,
-                    description: m.description,
-                    latestVersions: m.latestVersions.map((v) => ({
-                      version: v.version,
-                      stage: v.currentStage,
-                      status: v.status,
-                      runId: v.runId,
-                    })),
-                    tags: m.tags,
-                  })),
-                  count: models.length,
-                },
-                null,
-                2
-              ),
-            },
-          ],
-        };
-      }
-
-      case "get_model_version": {
-        const modelName = args.modelName as string;
-        const version = args.version as string;
-
-        const modelVersion = await mlflowClient.getModelVersion(modelName, version);
-
-        if (!modelVersion) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: JSON.stringify({
-                  error: true,
-                  message: `Model version ${modelName}:${version} not found`,
-                }),
-              },
-            ],
-            isError: true,
-          };
-        }
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  model: modelVersion,
-                },
-                null,
-                2
-              ),
-            },
-          ],
-        };
-      }
-
-      case "compare_model_runs": {
-        const runIds = args.runIds as string[];
-        const comparison = await mlflowClient.compareRuns(runIds);
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  comparison: comparison.comparison,
-                  runs: comparison.runs.map((r) => ({
-                    runId: r.runId,
-                    status: r.status,
-                    params: Object.fromEntries(r.params.map((p) => [p.key, p.value])),
-                  })),
-                },
-                null,
-                2
-              ),
-            },
-          ],
-        };
-      }
 
       // ========================================================================
       // FEAST FEATURE STORE TOOL HANDLERS
