@@ -287,10 +287,12 @@ Thank you to everyone who has helped molecare-mcp.
 
 <!-- readme: contributors,bots/- -start -->
 <p align="center">
-  <img src=".github/contributors.svg" width="310" alt="Yauhen Bichel, Komal Singh, Amirreza Hosseini, ADITYA , Huangshuo Kuang, Elkero" />
-</p>
-<p align="center">
-  <a href="https://github.com/YauhenBichel">Yauhen Bichel</a><span> · </span><a href="https://github.com/komallsingh">Komal Singh</a><span> · </span><a href="https://github.com/Amiirhosseini">Amirreza Hosseini</a><span> · </span><a href="https://github.com/adity982">ADITYA </a><span> · </span><a href="https://github.com/kkkhs">Huangshuo Kuang</a><span> · </span><a href="https://github.com/YuuGR1337">Elkero</a>
+  <a href="https://github.com/YauhenBichel" title="Yauhen Bichel"><img src=".github/faces/YauhenBichel.svg" width="87" height="99" alt="Yauhen Bichel" /></a>
+  <a href="https://github.com/komallsingh" title="Komal Singh"><img src=".github/faces/komallsingh.svg" width="66" height="75" alt="Komal Singh" /></a>
+  <a href="https://github.com/Amiirhosseini" title="Amirreza Hosseini"><img src=".github/faces/Amiirhosseini.svg" width="72" height="82" alt="Amirreza Hosseini" /></a>
+  <a href="https://github.com/adity982" title="ADITYA "><img src=".github/faces/adity982.svg" width="80" height="91" alt="ADITYA " /></a>
+  <a href="https://github.com/kkkhs" title="Huangshuo Kuang"><img src=".github/faces/kkkhs.svg" width="63" height="72" alt="Huangshuo Kuang" /></a>
+  <a href="https://github.com/YuuGR1337" title="Elkero"><img src=".github/faces/YuuGR1337.svg" width="76" height="87" alt="Elkero" /></a>
 </p>
 <!-- readme: contributors,bots/- -end -->
 
