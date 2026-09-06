@@ -18,6 +18,8 @@ export class SimpleCache {
     this.cleanupInterval = setInterval(() => {
       this.cleanup();
     }, cleanupIntervalMs);
+    // Do not keep the process alive just for cache expiry.
+    this.cleanupInterval.unref();
   }
 
   /**
