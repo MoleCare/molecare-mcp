@@ -287,12 +287,12 @@ Thank you to everyone who has helped molecare-mcp.
 
 <!-- readme: contributors,bots/- -start -->
 <p align="center">
-  <a href="https://github.com/YauhenBichel" title="Yauhen Bichel"><img src=".github/faces/YauhenBichel.svg" width="87" height="99" alt="Yauhen Bichel" /></a>
-  <a href="https://github.com/komallsingh" title="Komal Singh"><img src=".github/faces/komallsingh.svg" width="66" height="75" alt="Komal Singh" /></a>
-  <a href="https://github.com/Amiirhosseini" title="Amirreza Hosseini"><img src=".github/faces/Amiirhosseini.svg" width="72" height="82" alt="Amirreza Hosseini" /></a>
-  <a href="https://github.com/adity982" title="ADITYA "><img src=".github/faces/adity982.svg" width="80" height="91" alt="ADITYA " /></a>
-  <a href="https://github.com/kkkhs" title="Huangshuo Kuang"><img src=".github/faces/kkkhs.svg" width="63" height="72" alt="Huangshuo Kuang" /></a>
-  <a href="https://github.com/YuuGR1337" title="Elkero"><img src=".github/faces/YuuGR1337.svg" width="76" height="87" alt="Elkero" /></a>
+  <a href="https://github.com/YauhenBichel" title="Yauhen Bichel" aria-label="Yauhen Bichel"><img src=".github/faces/YauhenBichel.svg" width="87" height="99" alt="Yauhen Bichel" /></a>
+  <a href="https://github.com/komallsingh" title="Komal Singh" aria-label="Komal Singh"><img src=".github/faces/komallsingh.svg" width="66" height="75" alt="Komal Singh" /></a>
+  <a href="https://github.com/Amiirhosseini" title="Amirreza Hosseini" aria-label="Amirreza Hosseini"><img src=".github/faces/Amiirhosseini.svg" width="72" height="82" alt="Amirreza Hosseini" /></a>
+  <a href="https://github.com/adity982" title="ADITYA " aria-label="ADITYA "><img src=".github/faces/adity982.svg" width="80" height="91" alt="ADITYA " /></a>
+  <a href="https://github.com/kkkhs" title="Huangshuo Kuang" aria-label="Huangshuo Kuang"><img src=".github/faces/kkkhs.svg" width="63" height="72" alt="Huangshuo Kuang" /></a>
+  <a href="https://github.com/YuuGR1337" title="Elkero" aria-label="Elkero"><img src=".github/faces/YuuGR1337.svg" width="76" height="87" alt="Elkero" /></a>
 </p>
 <!-- readme: contributors,bots/- -end -->
 
