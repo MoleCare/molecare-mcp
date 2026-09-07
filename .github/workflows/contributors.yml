@@ -43,7 +43,7 @@ jobs:
           persist-credentials: true
 
       - name: Fill README contributors
-        uses: YauhenBichel/readme-contributors@dd5eb5b4251b0158662457256ca29c0de1e5444c # v1.5.0
+        uses: YauhenBichel/readme-contributors@ad89c96e4f83262c40804087ffafcfe0e08ade06 # v1.6.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           format: html
