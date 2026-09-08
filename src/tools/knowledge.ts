@@ -11,6 +11,7 @@ import {
 } from "../clinical-boundary.js";
 import type { MedicalKnowledgeBase } from "../resources/medical-kb.js";
 import { TERMINOLOGY_PROVENANCE } from "../resources/terminology-provenance.js";
+import { terminologyCoverage } from "../resources/terminology-data.js";
 
 export const searchMedicalInfoTool = {
   name: "search_medical_info",
@@ -224,6 +225,9 @@ export async function dispatchKnowledgeTool(
             text: JSON.stringify(
               {
                 concept,
+                // A caller who asks for an unbundled code should learn the
+                // shape of the subset rather than receive a bare null.
+                ...(concept ? {} : { coverage: terminologyCoverage() }),
                 disclaimer:
                   "This information is for educational purposes only and does not constitute medical advice.",
               },
@@ -246,6 +250,7 @@ export async function dispatchKnowledgeTool(
                 query: args.query,
                 resultsCount: concepts.length,
                 concepts,
+                ...(concepts.length ? {} : { coverage: terminologyCoverage() }),
                 disclaimer:
                   "This information is for educational purposes only and does not constitute medical advice.",
               },
@@ -269,6 +274,7 @@ export async function dispatchKnowledgeTool(
               {
                 snomedCode: args.snomedCode,
                 progressionPaths: progressions,
+                ...(progressions.length ? {} : { coverage: terminologyCoverage() }),
                 note: "Progression is not inevitable. Many conditions remain stable with proper monitoring and care.",
                 disclaimer:
                   "This information is for educational purposes only and does not constitute medical advice.",
@@ -293,6 +299,7 @@ export async function dispatchKnowledgeTool(
               {
                 snomedCode: args.snomedCode,
                 icd10Mappings: diagnoses,
+                ...(diagnoses.length ? {} : { coverage: terminologyCoverage() }),
                 provenance: TERMINOLOGY_PROVENANCE,
                 disclaimer:
                   "This information is for educational purposes only and does not constitute medical advice.",

@@ -30,6 +30,7 @@ const EXPECTED_RESOURCE_URIS = [
   "molecare://knowledge/when-to-see-doctor",
   "molecare://ontology/snomed-codes",
   "molecare://ontology/icd10-codes",
+  "molecare://ontology/snomed-icd10-map",
   "molecare://ontology/risk-factors",
 ];
 

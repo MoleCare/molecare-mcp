@@ -50,6 +50,27 @@ Inspect the tool surface interactively:
 npm run inspect
 ```
 
+## Adding terminology
+
+All bundled SNOMED CT concepts, ICD-10 categories and mappings live in one file:
+`src/resources/terminology-data.ts`. The mock ontology client and the
+`molecare://ontology/*` resources both read from it, so anything you add is
+visible from every surface at once — and `tests/terminology-coverage.test.mjs`
+fails if an advertised concept stops resolving or loses its ICD-10 mapping.
+
+Two rules:
+
+- **Every row needs provenance.** Named source, edition, and an honest
+  `mappingExactness`. SNOMED-to-ICD-10 is frequently not one-to-one; say so
+  rather than picking a target and implying certainty.
+- **Do not add SNOMED CT concept identifiers right now.** Whether this package
+  may redistribute an expanded SNOMED subset worldwide via npm is an open
+  question with SNOMED International — see
+  [#49](https://github.com/MoleCare/molecare-mcp/issues/49) and
+  `TERMINOLOGY_PROVENANCE.snomedCt.redistribution`. A test pins the current set
+  so this cannot happen by accident. **WHO ICD-10 categories are not affected**
+  and are welcome.
+
 ## Mock-first
 
 Every client in `src/api/` must work with no credentials configured. If you add a

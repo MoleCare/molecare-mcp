@@ -42,6 +42,13 @@ import {
   moleToolsBeforeSearch,
 } from "./tools/moles.js";
 import { TERMINOLOGY_PROVENANCE } from "./resources/terminology-provenance.js";
+import {
+  ICD10_CATEGORIES,
+  SNOMED_CONCEPTS,
+  SNOMED_TO_ICD10,
+  findIcd10,
+  terminologyCoverage,
+} from "./resources/terminology-data.js";
 
 // Utilities
 import { cache, CACHE_TTL } from "./utils/cache.js";
@@ -161,6 +168,13 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => ({
       mimeType: "application/json",
     },
     {
+      uri: "molecare://ontology/snomed-icd10-map",
+      name: "SNOMED CT to ICD-10 Map",
+      description:
+        "Every bundled SNOMED CT to ICD-10 mapping, with the rationale and exactness for each row",
+      mimeType: "application/json",
+    },
+    {
       uri: "molecare://ontology/risk-factors",
       name: "Risk Factors Guide",
       description: "Complete guide to skin cancer risk factors and their relative risks",
@@ -214,101 +228,69 @@ async function getOntologyResource(uri: string): Promise<any | null> {
     case "molecare://ontology/snomed-codes":
       return {
         title: "SNOMED CT Dermatology Codes",
-        description: "Clinical terminology codes for skin conditions",
+        description:
+          "Clinical terminology codes for skin conditions. Every code listed here " +
+          "resolves through lookup_medical_concept and maps to ICD-10 through " +
+          "map_snomed_to_icd10.",
         provenance: TERMINOLOGY_PROVENANCE.snomedCt,
         disclaimer:
           "This information is for educational purposes only and does not constitute medical advice.",
-        codes: [
-          {
-            code: "372244006",
-            name: "Malignant melanoma of skin",
-            category: "MALIGNANT",
-            description: "The most serious type of skin cancer",
-          },
-          {
-            code: "21119008",
-            name: "Pigmented nevus",
-            category: "BENIGN",
-            description: "A benign growth of melanocytes (common mole)",
-          },
-          {
-            code: "254701007",
-            name: "Dysplastic nevus",
-            category: "PRECANCEROUS",
-            description: "Atypical mole with some concerning features",
-          },
-          {
-            code: "109264001",
-            name: "Melanoma in situ",
-            category: "PRECANCEROUS",
-            description: "Early melanoma confined to the epidermis",
-          },
-          {
-            code: "254651007",
-            name: "Basal cell carcinoma",
-            category: "MALIGNANT",
-            description: "Most common type of skin cancer",
-          },
-          {
-            code: "254652000",
-            name: "Squamous cell carcinoma",
-            category: "MALIGNANT",
-            description: "Second most common type of skin cancer",
-          },
-          {
-            code: "92564006",
-            name: "Actinic keratosis",
-            category: "PRECANCEROUS",
-            description: "Pre-cancerous scaly patch from sun damage",
-          },
-        ],
+        count: SNOMED_CONCEPTS.length,
+        codes: SNOMED_CONCEPTS.map((concept) => ({
+          code: concept.snomedCode,
+          name: concept.name,
+          category: concept.category,
+          description: concept.description,
+          icd10Codes: (SNOMED_TO_ICD10[concept.snomedCode] ?? []).map(
+            (row) => row.icd10Code
+          ),
+        })),
       };
 
     case "molecare://ontology/icd10-codes":
       return {
         title: "ICD-10 Skin Condition Codes",
-        description: "International Classification of Diseases codes for skin diagnoses",
+        description:
+          "WHO ICD-10 categories for dermatology diagnoses, across neoplasms " +
+          "(Chapter II) and diseases of the skin (Chapter XII).",
         provenance: TERMINOLOGY_PROVENANCE.icd10,
         disclaimer:
           "This information is for educational purposes only and does not constitute medical advice.",
-        codes: [
-          {
-            code: "C43",
-            name: "Malignant melanoma of skin",
-            chapter: "Chapter II - Neoplasms",
-            category: "Malignant",
-          },
-          {
-            code: "C44",
-            name: "Other malignant neoplasms of skin",
-            chapter: "Chapter II - Neoplasms",
-            category: "Malignant",
-          },
-          {
-            code: "D03",
-            name: "Melanoma in situ",
-            chapter: "Chapter II - Neoplasms",
-            category: "In situ",
-          },
-          {
-            code: "D22",
-            name: "Melanocytic naevi",
-            chapter: "Chapter II - Neoplasms",
-            category: "Benign",
-          },
-          {
-            code: "D23",
-            name: "Other benign neoplasms of skin",
-            chapter: "Chapter II - Neoplasms",
-            category: "Benign",
-          },
-          {
-            code: "L57.0",
-            name: "Actinic keratosis",
-            chapter: "Chapter XII - Diseases of skin",
-            category: "Precancerous",
-          },
-        ],
+        count: ICD10_CATEGORIES.length,
+        codes: ICD10_CATEGORIES.map((entry) => ({
+          code: entry.code,
+          name: entry.name,
+          chapter: entry.chapter,
+          category: entry.group,
+          ...(entry.note ? { note: entry.note } : {}),
+        })),
+      };
+
+    case "molecare://ontology/snomed-icd10-map":
+      return {
+        title: "SNOMED CT to ICD-10 Map",
+        description:
+          "The complete bundled mapping table. Mappings are educational " +
+          "category-level approximations, and a concept may have more than one " +
+          "plausible ICD-10 target.",
+        provenance: TERMINOLOGY_PROVENANCE,
+        disclaimer:
+          "This information is for educational purposes only and does not constitute medical advice.",
+        coverage: terminologyCoverage(),
+        mappings: SNOMED_CONCEPTS.map((concept) => ({
+          snomedCode: concept.snomedCode,
+          snomedName: concept.name,
+          icd10: (SNOMED_TO_ICD10[concept.snomedCode] ?? []).map((row) => {
+            const category = findIcd10(row.icd10Code);
+            return {
+              code: row.icd10Code,
+              name: category?.name ?? row.icd10Code,
+              chapter: category?.chapter,
+              mappingExactness: row.exactness,
+              rationale: row.rationale,
+            };
+          }),
+        })),
       };
 
     case "molecare://ontology/risk-factors":
