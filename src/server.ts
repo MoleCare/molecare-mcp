@@ -55,6 +55,13 @@ const apiClient = new MoleCareApiClient({
   apiKey: process.env.MOLECARE_API_KEY || "",
 });
 
+logger.info(
+  apiClient.mockMode
+    ? "MoleCare API: mock mode — set MOLECARE_API_URL and MOLECARE_API_KEY to use a real backend"
+    : "MoleCare API: real backend configured; failures are reported, never replaced with mock data",
+  { dataSource: apiClient.dataSource }
+);
+
 // Initialize Ontology client
 const ontologyClient = new OntologyApiClient({
   baseUrl: process.env.MOLECARE_API_URL || "http://localhost:8080/api",

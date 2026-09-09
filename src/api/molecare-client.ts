@@ -11,6 +11,25 @@ import axios, { AxiosInstance } from "axios";
 interface MoleCareApiConfig {
   baseUrl: string;
   apiKey: string;
+  /**
+   * Serve synthetic records instead of calling the backend. Defaults to true
+   * when either the URL or the key is missing, so a fresh checkout works
+   * without credentials. When false, a backend failure is an error — never
+   * fake data that could be mistaken for a real record.
+   */
+  mockMode?: boolean;
+}
+
+export type MoleCareDataSource = "mock" | "molecare-api";
+
+const ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+
+/** Ids are interpolated into request paths; refuse anything that is not a plain identifier. */
+function pathId(value: string, name: string): string {
+  if (typeof value !== "string" || !ID_PATTERN.test(value)) {
+    throw new Error(`${name} must be 1-64 letters, digits, '_' or '-'`);
+  }
+  return encodeURIComponent(value);
 }
 
 interface Mole {
@@ -53,8 +72,13 @@ interface ImageComparison {
 
 export class MoleCareApiClient {
   private client: AxiosInstance;
+  readonly mockMode: boolean;
+  /** What every tool result reports as its origin. */
+  readonly dataSource: MoleCareDataSource;
 
   constructor(config: MoleCareApiConfig) {
+    this.mockMode = config.mockMode ?? !(config.baseUrl && config.apiKey);
+    this.dataSource = this.mockMode ? "mock" : "molecare-api";
     this.client = axios.create({
       baseURL: config.baseUrl,
       headers: {
@@ -69,13 +93,12 @@ export class MoleCareApiClient {
    * Get all moles for a user
    */
   async getUserMoles(userId: string): Promise<Mole[]> {
+    if (this.mockMode) return this.getMockMoles(userId);
     try {
-      const response = await this.client.get(`/moles/user/${userId}`);
+      const response = await this.client.get(`/moles/user/${pathId(userId, "userId")}`);
       return response.data;
     } catch (error) {
-      // Return mock data for development
-      console.error("API call failed, returning mock data:", error);
-      return this.getMockMoles(userId);
+      throw this.apiError("getUserMoles", error);
     }
   }
 
@@ -83,12 +106,12 @@ export class MoleCareApiClient {
    * Get detailed analysis for a mole
    */
   async getMoleAnalysis(moleId: string): Promise<Analysis> {
+    if (this.mockMode) return this.getMockAnalysis(moleId);
     try {
-      const response = await this.client.get(`/moles/${moleId}/analysis`);
+      const response = await this.client.get(`/moles/${pathId(moleId, "moleId")}/analysis`);
       return response.data;
     } catch (error) {
-      console.error("API call failed, returning mock data:", error);
-      return this.getMockAnalysis(moleId);
+      throw this.apiError("getMoleAnalysis", error);
     }
   }
 
@@ -96,12 +119,12 @@ export class MoleCareApiClient {
    * Get change history for a mole
    */
   async getMoleHistory(moleId: string): Promise<MoleHistory> {
+    if (this.mockMode) return this.getMockHistory(moleId);
     try {
-      const response = await this.client.get(`/moles/${moleId}/history`);
+      const response = await this.client.get(`/moles/${pathId(moleId, "moleId")}/history`);
       return response.data;
     } catch (error) {
-      console.error("API call failed, returning mock data:", error);
-      return this.getMockHistory(moleId);
+      throw this.apiError("getMoleHistory", error);
     }
   }
 
@@ -109,12 +132,12 @@ export class MoleCareApiClient {
    * Get user profile with risk factors
    */
   async getUserProfile(userId: string): Promise<UserProfile> {
+    if (this.mockMode) return this.getMockProfile(userId);
     try {
-      const response = await this.client.get(`/users/${userId}/profile`);
+      const response = await this.client.get(`/users/${pathId(userId, "userId")}/profile`);
       return response.data;
     } catch (error) {
-      console.error("API call failed, returning mock data:", error);
-      return this.getMockProfile(userId);
+      throw this.apiError("getUserProfile", error);
     }
   }
 
@@ -126,16 +149,29 @@ export class MoleCareApiClient {
     imageId1: string,
     imageId2: string
   ): Promise<ImageComparison> {
+    if (this.mockMode) return this.getMockComparison();
     try {
-      const response = await this.client.post(`/moles/${moleId}/compare`, {
-        imageId1,
-        imageId2,
+      const response = await this.client.post(`/moles/${pathId(moleId, "moleId")}/compare`, {
+        imageId1: pathId(imageId1, "imageId1"),
+        imageId2: pathId(imageId2, "imageId2"),
       });
       return response.data;
     } catch (error) {
-      console.error("API call failed, returning mock data:", error);
-      return this.getMockComparison();
+      throw this.apiError("compareMoleImages", error);
     }
+  }
+
+  /**
+   * A backend failure surfaces as an error the tool runtime turns into an
+   * isError result. It never becomes synthetic data: a caller who configured
+   * a real backend must not receive plausible-looking records that are not
+   * theirs. The message carries the HTTP status, not the response body.
+   */
+  private apiError(operation: string, error: unknown): Error {
+    if (error instanceof Error && !axios.isAxiosError(error)) return error;
+    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+    const reason = status ? `HTTP ${status}` : "the backend could not be reached";
+    return new Error(`MoleCare API ${operation} failed: ${reason}`);
   }
 
   // ==========================================================================
