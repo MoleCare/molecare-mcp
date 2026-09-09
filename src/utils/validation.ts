@@ -5,6 +5,14 @@
 
 import { z } from "zod";
 
+/**
+ * Record identifiers travel into backend request paths. A plain identifier is
+ * all that is ever valid; anything else is rejected before a request is built.
+ */
+export const IdentifierSchema = z
+  .string()
+  .regex(/^[A-Za-z0-9_-]{1,64}$/, "must be 1-64 letters, digits, '_' or '-'");
+
 // =============================================================================
 // Infrastructure Tools
 // =============================================================================
@@ -90,17 +98,25 @@ export const GetOnlineFeaturesSchema = z.object({
 // =============================================================================
 
 export const GetUserMolesSchema = z.object({
-  userId: z.string().min(1, "userId is required"),
+  userId: IdentifierSchema,
 });
 
 export const GetMoleAnalysisSchema = z.object({
-  moleId: z.string().min(1, "moleId is required"),
+  moleId: IdentifierSchema,
+});
+
+export const GetMoleChangesSchema = z.object({
+  moleId: IdentifierSchema,
+});
+
+export const GetUserRiskFactorsSchema = z.object({
+  userId: IdentifierSchema,
 });
 
 export const CompareMolesSchema = z.object({
-  moleId: z.string().min(1),
-  imageId1: z.string().min(1),
-  imageId2: z.string().min(1),
+  moleId: IdentifierSchema,
+  imageId1: IdentifierSchema,
+  imageId2: IdentifierSchema,
 });
 
 export const ClassifyLesionFeaturesSchema = z.object({
@@ -224,6 +240,8 @@ export const TOOL_SCHEMAS: Record<string, z.ZodSchema<any>> = {
   // Clinical
   get_user_moles: GetUserMolesSchema,
   get_mole_analysis: GetMoleAnalysisSchema,
+  get_mole_changes: GetMoleChangesSchema,
+  get_user_risk_factors: GetUserRiskFactorsSchema,
   compare_moles: CompareMolesSchema,
   classify_lesion_features: ClassifyLesionFeaturesSchema,
   // EC2
