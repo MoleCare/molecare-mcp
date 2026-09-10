@@ -224,6 +224,7 @@ export async function dispatchKnowledgeTool(
             text: JSON.stringify(
               {
                 concept,
+                dataSource: ontologyClient.dataSource,
                 disclaimer:
                   "This information is for educational purposes only and does not constitute medical advice.",
               },
@@ -246,6 +247,7 @@ export async function dispatchKnowledgeTool(
                 query: args.query,
                 resultsCount: concepts.length,
                 concepts,
+                dataSource: ontologyClient.dataSource,
                 disclaimer:
                   "This information is for educational purposes only and does not constitute medical advice.",
               },
@@ -270,6 +272,7 @@ export async function dispatchKnowledgeTool(
                 snomedCode: args.snomedCode,
                 progressionPaths: progressions,
                 note: "Progression is not inevitable. Many conditions remain stable with proper monitoring and care.",
+                dataSource: ontologyClient.dataSource,
                 disclaimer:
                   "This information is for educational purposes only and does not constitute medical advice.",
               },
@@ -294,6 +297,7 @@ export async function dispatchKnowledgeTool(
                 snomedCode: args.snomedCode,
                 icd10Mappings: diagnoses,
                 provenance: TERMINOLOGY_PROVENANCE,
+                dataSource: ontologyClient.dataSource,
                 disclaimer:
                   "This information is for educational purposes only and does not constitute medical advice.",
               },
@@ -318,6 +322,7 @@ export async function dispatchKnowledgeTool(
                 snomedCode: args.snomedCode,
                 riskFactors,
                 note: "Having risk factors does not mean you will develop the condition. Many people with risk factors never develop skin cancer.",
+                dataSource: ontologyClient.dataSource,
                 disclaimer:
                   "This information is for educational purposes only and does not constitute medical advice.",
               },
@@ -341,6 +346,7 @@ export async function dispatchKnowledgeTool(
               {
                 inputFactors: args.riskFactorIds,
                 review,
+                dataSource: ontologyClient.dataSource,
                 disclaimer: EDUCATIONAL_RISK_NOTE,
               },
               null,
@@ -373,6 +379,7 @@ export async function dispatchKnowledgeTool(
                   hasChanged: args.hasChanged,
                 },
                 classification,
+                dataSource: ontologyClient.dataSource,
                 disclaimer: EDUCATIONAL_ONLY_NOTE,
               },
               null,
@@ -394,6 +401,7 @@ export async function dispatchKnowledgeTool(
                 conditions,
                 count: conditions.length,
                 note: "Early detection is key. Regular skin self-examinations and professional screenings can help identify concerning changes early.",
+                dataSource: ontologyClient.dataSource,
                 disclaimer:
                   "This information is for educational purposes only and does not constitute medical advice.",
               },
