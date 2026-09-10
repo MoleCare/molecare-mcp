@@ -177,6 +177,7 @@ test("every concept the mock client can hand out names the right disease", async
   const client = new OntologyApiClient({ baseUrl: "", apiKey: "" });
   const handedOut = [
     ...(await client.getMalignantConditions()),
+    ...(await client.getProgressionPaths("254818000")).flatMap((p) => [p.fromCondition, p.toCondition]),
     ...(await client.searchConcepts("melanoma")),
     ...(await client.searchConcepts("carcinoma")),
     ...(await client.searchConcepts("nevus")),
@@ -185,7 +186,11 @@ test("every concept the mock client can hand out names the right disease", async
     ...(await client.getConceptsByCategory("PRECANCEROUS")),
     ...(await client.getConceptsByCategory("BENIGN")),
   ];
-  assert.ok(handedOut.length >= 4, `only ${handedOut.length} concepts came back; the mock paths look broken`);
+  assert.ok(handedOut.length >= 6, `only ${handedOut.length} concepts came back; the mock paths look broken`);
+  assert.ok(
+    handedOut.some((c) => c.snomedCode === "109266006"),
+    "the progression path returned no melanoma in situ; that path is not being exercised",
+  );
   for (const concept of handedOut) {
     const code = concept.snomedCode;
     assert.ok(code in EXPECTED, `${code} ("${concept.name}") is handed out but not in the verified table`);
@@ -193,6 +198,25 @@ test("every concept the mock client can hand out names the right disease", async
       labelMatches(concept.name, EXPECTED[code]),
       `${code} is handed out as "${concept.name}" but SNOMED CT says "${EXPECTED[code]}"`,
     );
+  }
+});
+
+test("every concept filed as MALIGNANT is in the malignant list, and nothing else is", async () => {
+  // The list used to omit melanoma in situ while the concept table filed it as
+  // MALIGNANT, so get_malignant_conditions contradicted lookup_medical_concept.
+  const client = new OntologyApiClient({ baseUrl: "", apiKey: "" });
+  const listed = new Set((await client.getMalignantConditions()).map((c) => c.snomedCode));
+  for (const code of Object.keys(EXPECTED)) {
+    const concept = await client.getConceptBySnomedCode(code);
+    if (!concept) continue;
+    assert.equal(
+      listed.has(code),
+      concept.category === "MALIGNANT",
+      `${code} (${concept.name}) is ${concept.category} but ${listed.has(code) ? "is" : "is not"} in the malignant list`,
+    );
+  }
+  for (const code of listed) {
+    assert.equal((await client.getConceptBySnomedCode(code))?.category, "MALIGNANT", `${code} is listed as malignant but the concept table disagrees`);
   }
 });
 

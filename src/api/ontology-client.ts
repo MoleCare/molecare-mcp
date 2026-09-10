@@ -139,7 +139,7 @@ export class OntologyApiClient {
   }
 
   async getConceptsByCategory(category: string): Promise<Concept[]> {
-    if (this.mockMode) return [];
+    if (this.mockMode) return this.getMockConceptsByCategory(category);
     try {
       const response = await this.client.get<ApiResponse<Concept[]>>(
         `/concepts/category/${category}`
@@ -297,88 +297,89 @@ export class OntologyApiClient {
   // Provenance: see TERMINOLOGY_PROVENANCE in terminology-provenance.ts
   // ==========================================================================
 
+  /**
+   * The bundled SNOMED CT concepts, in one table. Lookup, search, category,
+   * progression and the malignant list are all derived from it, so a concept
+   * cannot be handed out by one path and unknown to another. That is how
+   * melanoma in situ came to be MALIGNANT in the resource and reachable
+   * through progression, yet absent from lookup and the malignant list.
+   * Names are checked against SNOMED CT by tests/terminology.test.mjs.
+   */
+  private static readonly MOCK_CONCEPTS: Record<string, Concept> = {
+    "93655004": {
+      snomedCode: "93655004",
+      name: "Malignant melanoma of skin",
+      description: "The most serious type of skin cancer that develops from pigment-producing cells",
+      category: "MALIGNANT",
+      severity: "HIGH",
+    },
+    "109266006": {
+      snomedCode: "109266006",
+      name: "Melanoma in situ of skin",
+      description: "Early melanoma confined to the epidermis",
+      category: "MALIGNANT",
+      severity: "MODERATE",
+    },
+    "254701007": {
+      snomedCode: "254701007",
+      name: "Basal cell carcinoma of skin",
+      description: "Most common type of skin cancer",
+      category: "MALIGNANT",
+      severity: "MODERATE",
+    },
+    "254651007": {
+      snomedCode: "254651007",
+      name: "Squamous cell carcinoma of skin",
+      description: "Second most common type of skin cancer",
+      category: "MALIGNANT",
+      severity: "MODERATE",
+    },
+    "254818000": {
+      snomedCode: "254818000",
+      name: "Dysplastic nevus",
+      description: "Atypical mole with some concerning features",
+      category: "PRECANCEROUS",
+      severity: "MODERATE",
+    },
+    "201101007": {
+      snomedCode: "201101007",
+      name: "Actinic keratosis",
+      description: "Pre-cancerous scaly patch from sun damage",
+      category: "PRECANCEROUS",
+      severity: "MODERATE",
+    },
+    "400010006": {
+      snomedCode: "400010006",
+      name: "Melanocytic naevus of skin",
+      description: "A benign growth of melanocytes (pigment cells)",
+      category: "BENIGN",
+      severity: "LOW",
+    },
+  };
+
   private getMockConcept(snomedCode: string): Concept | null {
-    // SNOMED CT International Edition concepts (see TERMINOLOGY_PROVENANCE.snomedCt).
-    const concepts: Record<string, Concept> = {
-      "93655004": {
-        snomedCode: "93655004",
-        name: "Malignant melanoma of skin",
-        description: "The most serious type of skin cancer that develops from pigment-producing cells",
-        category: "MALIGNANT",
-        severity: "HIGH",
-      },
-      "400010006": {
-        snomedCode: "400010006",
-        name: "Melanocytic naevus of skin",
-        description: "A benign growth of melanocytes (pigment cells)",
-        category: "BENIGN",
-        severity: "LOW",
-      },
-      "254818000": {
-        snomedCode: "254818000",
-        name: "Dysplastic nevus",
-        description: "Atypical mole with some concerning features",
-        category: "PRECANCEROUS",
-        severity: "MODERATE",
-      },
-    };
-    return concepts[snomedCode] || null;
+    return OntologyApiClient.MOCK_CONCEPTS[snomedCode] || null;
   }
 
   private getMockSearchResults(query: string): Concept[] {
     const lowerQuery = query.toLowerCase();
-    const allConcepts = [
-      {
-        snomedCode: "93655004",
-        name: "Malignant melanoma of skin",
-        description: "Serious skin cancer from melanocytes",
-        category: "MALIGNANT",
-        severity: "HIGH",
-      },
-      {
-        snomedCode: "400010006",
-        name: "Melanocytic naevus of skin",
-        description: "Benign mole",
-        category: "BENIGN",
-        severity: "LOW",
-      },
-      {
-        snomedCode: "254818000",
-        name: "Dysplastic nevus",
-        description: "Atypical mole",
-        category: "PRECANCEROUS",
-        severity: "MODERATE",
-      },
-    ];
-    return allConcepts.filter(
+    return Object.values(OntologyApiClient.MOCK_CONCEPTS).filter(
       (c) =>
         c.name.toLowerCase().includes(lowerQuery) ||
         c.description.toLowerCase().includes(lowerQuery)
     );
   }
 
+  private getMockConceptsByCategory(category: string): Concept[] {
+    return Object.values(OntologyApiClient.MOCK_CONCEPTS).filter((c) => c.category === category);
+  }
+
   private getMockProgressions(snomedCode: string): Progression[] {
     if (snomedCode === "254818000") {
-      return [
-        {
-          fromCondition: {
-            snomedCode: "254818000",
-            name: "Dysplastic nevus",
-            description: "Atypical mole",
-            category: "PRECANCEROUS",
-            severity: "MODERATE",
-          },
-          toCondition: {
-            snomedCode: "109266006",
-            name: "Melanoma in situ",
-            description: "Early melanoma confined to epidermis",
-            category: "MALIGNANT",
-            severity: "MODERATE",
-          },
-          likelihood: "POSSIBLE",
-          timeframe: "MONTHS_TO_YEARS",
-        },
-      ];
+      const fromCondition = this.getMockConcept("254818000");
+      const toCondition = this.getMockConcept("109266006");
+      if (!fromCondition || !toCondition) return [];
+      return [{ fromCondition, toCondition, likelihood: "POSSIBLE", timeframe: "MONTHS_TO_YEARS" }];
     }
     return [];
   }
@@ -548,28 +549,6 @@ export class OntologyApiClient {
   }
 
   private getMockMalignantConditions(): Concept[] {
-    return [
-      {
-        snomedCode: "93655004",
-        name: "Malignant melanoma of skin",
-        description: "Skin cancer arising from melanocytes",
-        category: "MALIGNANT",
-        severity: "HIGH",
-      },
-      {
-        snomedCode: "254701007",
-        name: "Basal cell carcinoma of skin",
-        description: "Most common type of skin cancer",
-        category: "MALIGNANT",
-        severity: "MODERATE",
-      },
-      {
-        snomedCode: "254651007",
-        name: "Squamous cell carcinoma of skin",
-        description: "Second most common skin cancer",
-        category: "MALIGNANT",
-        severity: "MODERATE",
-      },
-    ];
+    return this.getMockConceptsByCategory("MALIGNANT");
   }
 }
