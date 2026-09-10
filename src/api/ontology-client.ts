@@ -300,22 +300,22 @@ export class OntologyApiClient {
   private getMockConcept(snomedCode: string): Concept | null {
     // SNOMED CT International Edition concepts (see TERMINOLOGY_PROVENANCE.snomedCt).
     const concepts: Record<string, Concept> = {
-      "372244006": {
-        snomedCode: "372244006",
+      "93655004": {
+        snomedCode: "93655004",
         name: "Malignant melanoma of skin",
         description: "The most serious type of skin cancer that develops from pigment-producing cells",
         category: "MALIGNANT",
         severity: "HIGH",
       },
-      "21119008": {
-        snomedCode: "21119008",
-        name: "Pigmented nevus",
+      "400010006": {
+        snomedCode: "400010006",
+        name: "Melanocytic naevus of skin",
         description: "A benign growth of melanocytes (pigment cells)",
         category: "BENIGN",
         severity: "LOW",
       },
-      "254701007": {
-        snomedCode: "254701007",
+      "254818000": {
+        snomedCode: "254818000",
         name: "Dysplastic nevus",
         description: "Atypical mole with some concerning features",
         category: "PRECANCEROUS",
@@ -329,21 +329,21 @@ export class OntologyApiClient {
     const lowerQuery = query.toLowerCase();
     const allConcepts = [
       {
-        snomedCode: "372244006",
+        snomedCode: "93655004",
         name: "Malignant melanoma of skin",
         description: "Serious skin cancer from melanocytes",
         category: "MALIGNANT",
         severity: "HIGH",
       },
       {
-        snomedCode: "21119008",
-        name: "Pigmented nevus",
+        snomedCode: "400010006",
+        name: "Melanocytic naevus of skin",
         description: "Benign mole",
         category: "BENIGN",
         severity: "LOW",
       },
       {
-        snomedCode: "254701007",
+        snomedCode: "254818000",
         name: "Dysplastic nevus",
         description: "Atypical mole",
         category: "PRECANCEROUS",
@@ -358,21 +358,21 @@ export class OntologyApiClient {
   }
 
   private getMockProgressions(snomedCode: string): Progression[] {
-    if (snomedCode === "254701007") {
+    if (snomedCode === "254818000") {
       return [
         {
           fromCondition: {
-            snomedCode: "254701007",
+            snomedCode: "254818000",
             name: "Dysplastic nevus",
             description: "Atypical mole",
             category: "PRECANCEROUS",
             severity: "MODERATE",
           },
           toCondition: {
-            snomedCode: "109264001",
+            snomedCode: "109266006",
             name: "Melanoma in situ",
             description: "Early melanoma confined to epidermis",
-            category: "PRECANCEROUS",
+            category: "MALIGNANT",
             severity: "MODERATE",
           },
           likelihood: "POSSIBLE",
@@ -391,7 +391,7 @@ export class OntologyApiClient {
       `${TERMINOLOGY_PROVENANCE.icd10.revision}; ` +
       `last checked ${TERMINOLOGY_PROVENANCE.snomedCt.lastChecked}`;
     const mappings: Record<string, Diagnosis[]> = {
-      "372244006": [
+      "93655004": [
         {
           icd10Code: "C43",
           name: "Malignant melanoma of skin",
@@ -402,7 +402,7 @@ export class OntologyApiClient {
           source,
         },
       ],
-      "21119008": [
+      "400010006": [
         {
           icd10Code: "D22",
           name: "Melanocytic naevi",
@@ -550,22 +550,22 @@ export class OntologyApiClient {
   private getMockMalignantConditions(): Concept[] {
     return [
       {
-        snomedCode: "372244006",
+        snomedCode: "93655004",
         name: "Malignant melanoma of skin",
         description: "Skin cancer arising from melanocytes",
         category: "MALIGNANT",
         severity: "HIGH",
       },
       {
-        snomedCode: "254651007",
-        name: "Basal cell carcinoma",
+        snomedCode: "254701007",
+        name: "Basal cell carcinoma of skin",
         description: "Most common type of skin cancer",
         category: "MALIGNANT",
         severity: "MODERATE",
       },
       {
-        snomedCode: "254652000",
-        name: "Squamous cell carcinoma",
+        snomedCode: "254651007",
+        name: "Squamous cell carcinoma of skin",
         description: "Second most common skin cancer",
         category: "MALIGNANT",
         severity: "MODERATE",

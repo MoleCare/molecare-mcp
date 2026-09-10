@@ -39,9 +39,9 @@ const REQUESTS = [
   { jsonrpc: "2.0", method: "notifications/initialized" },
   // One tool from each client, so every failing HTTP path is exercised.
   { jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "get_user_moles", arguments: { userId: "user-001" } } },
-  { jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "lookup_medical_concept", arguments: { snomedCode: "372244006" } } },
-  { jsonrpc: "2.0", id: 4, method: "tools/call", params: { name: "map_snomed_to_icd10", arguments: { snomedCode: "372244006" } } },
-  { jsonrpc: "2.0", id: 5, method: "tools/call", params: { name: "get_condition_risk_factors", arguments: { snomedCode: "372244006" } } },
+  { jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "lookup_medical_concept", arguments: { snomedCode: "93655004" } } },
+  { jsonrpc: "2.0", id: 4, method: "tools/call", params: { name: "map_snomed_to_icd10", arguments: { snomedCode: "93655004" } } },
+  { jsonrpc: "2.0", id: 5, method: "tools/call", params: { name: "get_condition_risk_factors", arguments: { snomedCode: "93655004" } } },
 ];
 
 function runServer() {
@@ -98,7 +98,7 @@ test("describeError keeps what helps and drops what leaks", () => {
     message: "connect ECONNREFUSED 127.0.0.1:9",
     config: {
       method: "get",
-      url: "http://127.0.0.1:9/api/concepts/372244006?apiKey=" + CANARY,
+      url: "http://127.0.0.1:9/api/concepts/93655004?apiKey=" + CANARY,
       headers: { Authorization: `Bearer ${CANARY}` },
     },
     response: undefined,
@@ -107,7 +107,7 @@ test("describeError keeps what helps and drops what leaks", () => {
   const described = describeError(axiosError);
   assert.ok(!described.includes(CANARY), "the query string or header leaked");
   assert.match(described, /ECONNREFUSED/, "the reason was dropped");
-  assert.match(described, /GET http:\/\/127\.0\.0\.1:9\/api\/concepts\/372244006/);
+  assert.match(described, /GET http:\/\/127\.0\.0\.1:9\/api\/concepts\/93655004/);
   assert.ok(!described.includes("?"), "the query string was kept");
 });
 
