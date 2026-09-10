@@ -42,6 +42,7 @@ import {
   moleToolsBeforeSearch,
 } from "./tools/moles.js";
 import { TERMINOLOGY_PROVENANCE } from "./resources/terminology-provenance.js";
+import { EDUCATIONAL_RISK_NOTE } from "./clinical-boundary.js";
 
 // Utilities
 import { cache, CACHE_TTL } from "./utils/cache.js";
@@ -171,7 +172,7 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => ({
     {
       uri: "molecare://ontology/risk-factors",
       name: "Risk Factors Guide",
-      description: "Complete guide to skin cancer risk factors and their relative risks",
+      description: "Named educational skin-health factors. No multipliers, scores or risk bands.",
       mimeType: "application/json",
     },
   ],
@@ -325,12 +326,12 @@ async function getOntologyResource(uri: string): Promise<any | null> {
         description: "Factors that increase the risk of developing skin cancer",
         disclaimer:
           "This information is for educational purposes only. Having risk factors does not mean you will develop skin cancer.",
+        note: EDUCATIONAL_RISK_NOTE,
         riskFactors: [
           {
             id: "FAIR_SKIN",
             name: "Fair skin (Fitzpatrick Type I-II)",
             category: "Genetic",
-            relativeRisk: 2.5,
             description:
               "People with fair skin that burns easily have higher risk",
           },
@@ -338,7 +339,6 @@ async function getOntologyResource(uri: string): Promise<any | null> {
             id: "FAMILY_HISTORY",
             name: "Family history of melanoma",
             category: "Genetic",
-            relativeRisk: 3.0,
             description:
               "Having a first-degree relative with melanoma increases risk",
           },
@@ -346,7 +346,6 @@ async function getOntologyResource(uri: string): Promise<any | null> {
             id: "MANY_MOLES",
             name: "Many moles (50+)",
             category: "Phenotypic",
-            relativeRisk: 2.0,
             description:
               "Having more than 50 common moles increases melanoma risk",
           },
@@ -354,14 +353,12 @@ async function getOntologyResource(uri: string): Promise<any | null> {
             id: "ATYPICAL_MOLES",
             name: "Atypical moles",
             category: "Phenotypic",
-            relativeRisk: 5.0,
             description: "Presence of dysplastic nevi significantly increases risk",
           },
           {
             id: "UV_EXPOSURE",
             name: "Excessive UV exposure",
             category: "Environmental",
-            relativeRisk: 2.0,
             description:
               "History of sunburns or frequent tanning bed use",
           },
@@ -369,7 +366,6 @@ async function getOntologyResource(uri: string): Promise<any | null> {
             id: "PERSONAL_HISTORY",
             name: "Personal history of skin cancer",
             category: "Medical",
-            relativeRisk: 9.0,
             description:
               "Previous skin cancer significantly increases risk of another",
           },
