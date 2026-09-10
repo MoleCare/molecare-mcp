@@ -108,21 +108,45 @@ function runOpsServer() {
 
     let stderr = "";
     let stdout = "";
+    let done = false;
+    const wanted = new Set(REQUESTS.filter((r) => r.id !== undefined && r.id >= 10).map((r) => r.id));
+
+    // Stop when every call has been answered, not after a guessed number of
+    // seconds: faster on a fast machine and not a race on a slow one. The cap
+    // only matters if the server never answers, which is its own failure.
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(cap);
+      // One more turn so stderr written alongside the last reply is captured.
+      setTimeout(() => {
+        child.kill();
+        resolve({ stderr, stdout, answered: REQUESTS.length - 2 - wanted.size });
+      }, 100);
+    };
+    const cap = setTimeout(finish, 20_000);
+
     child.stderr.on("data", (chunk) => (stderr += chunk));
-    child.stdout.on("data", (chunk) => (stdout += chunk));
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk;
+      for (const line of String(chunk).split("\n")) {
+        try {
+          const id = JSON.parse(line)?.id;
+          if (wanted.delete(id) && wanted.size === 0) finish();
+        } catch {
+          /* partial line or a notification; keep reading */
+        }
+      }
+    });
 
     for (const request of REQUESTS) child.stdin.write(`${JSON.stringify(request)}\n`);
-
-    setTimeout(() => {
-      child.kill();
-      resolve({ stderr, stdout });
-    }, 8000);
   });
 }
 
 test("no credential reaches the ops server's stderr when every backend fails", async () => {
-  const { stderr, stdout } = await runOpsServer();
+  const { stderr, stdout, answered } = await runOpsServer();
 
+  assert.equal(answered, CALLS.length, `only ${answered} of ${CALLS.length} calls were answered`);
   assert.ok(stderr.length > 0, "expected the ops server to log something");
   for (const [client, marker] of Object.entries(FAILURE_MARKERS)) {
     assert.match(stderr, marker, `the ${client} client's failure path did not run; this test would prove nothing`);
@@ -136,6 +160,12 @@ test("no credential reaches the ops server's stderr when every backend fails", a
       `use describeError(). Offending output:\n${offending.slice(0, 3).join("\n")}`,
   );
   assert.ok(!stdout.includes(CANARY), "a credential reached a tool result on stdout");
+
+  // The GitHub client is the one call whose host is not on this machine. A
+  // refused connection is the proxy on the discard port; an HTTP status would
+  // mean the request, canary token and all, reached api.github.com.
+  assert.match(stderr, /GitHub API error: ECONNREFUSED/, "the GitHub request did not fail at the local proxy");
+  assert.doesNotMatch(stderr, /GitHub API error: HTTP \d+/, "the GitHub request left the machine");
   assert.ok(!/authorization/i.test(stderr), "an Authorization header reached stderr");
   assert.ok(!/bearer/i.test(stderr), "a bearer token reached stderr");
 });
