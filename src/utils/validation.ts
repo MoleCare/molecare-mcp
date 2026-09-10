@@ -99,25 +99,25 @@ export const GetOnlineFeaturesSchema = z.object({
 
 export const GetUserMolesSchema = z.object({
   userId: IdentifierSchema,
-});
+}).strict();
 
 export const GetMoleAnalysisSchema = z.object({
   moleId: IdentifierSchema,
-});
+}).strict();
 
 export const GetMoleChangesSchema = z.object({
   moleId: IdentifierSchema,
-});
+}).strict();
 
 export const GetUserRiskFactorsSchema = z.object({
   userId: IdentifierSchema,
-});
+}).strict();
 
 export const CompareMolesSchema = z.object({
   moleId: IdentifierSchema,
   imageId1: IdentifierSchema,
   imageId2: IdentifierSchema,
-});
+}).strict();
 
 export const ClassifyLesionFeaturesSchema = z.object({
   asymmetry: z.boolean().optional(),
@@ -125,7 +125,12 @@ export const ClassifyLesionFeaturesSchema = z.object({
   multipleColors: z.boolean().optional(),
   diameterMm: z.number().min(0).max(50).optional(),
   hasChanged: z.boolean().optional(),
-});
+})
+  .strict()
+  .refine(
+    (features) => Object.keys(features).length > 0,
+    "supply at least one feature: asymmetry, irregularBorder, multipleColors, diameterMm or hasChanged"
+  );
 
 // =============================================================================
 // EC2 Tools
@@ -210,7 +215,7 @@ export function validateInput<T>(
 
   // Format Zod errors nicely
   const errors = result.error.issues
-    .map((e) => `${e.path.join(".")}: ${e.message}`)
+    .map((e) => (e.path.length ? `${e.path.join(".")}: ${e.message}` : e.message))
     .join("; ");
 
   return { success: false, error: errors };

@@ -19,9 +19,12 @@ export const searchMedicalInfoTool = {
     "Search the medical knowledge base for skin health information. Use this to provide accurate educational content about skin conditions, ABCDE criteria, and prevention tips.",
   inputSchema: {
     type: "object" as const,
+    additionalProperties: false,
     properties: {
       query: {
         type: "string",
+        minLength: 1,
+        maxLength: 200,
         description: "Search query (e.g., 'asymmetry', 'melanoma', 'sunscreen')",
       },
     },
@@ -37,9 +40,11 @@ export const ontologyTools = [
       "Look up a medical concept by SNOMED CT code. Returns detailed information about skin conditions including severity and category. Use this to provide accurate medical terminology.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         snomedCode: {
           type: "string",
+          pattern: "^[0-9]{6,18}$",
           description: "SNOMED CT code (e.g., '372244006' for melanoma)",
         },
       },
@@ -53,9 +58,12 @@ export const ontologyTools = [
       "Search for medical concepts by name or description. Returns matching SNOMED CT concepts for dermatology conditions.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         query: {
           type: "string",
+          minLength: 1,
+          maxLength: 200,
           description: "Search term (e.g., 'melanoma', 'nevus', 'mole')",
         },
       },
@@ -69,9 +77,11 @@ export const ontologyTools = [
       "Get information about how a skin condition can progress. Shows potential progression paths (e.g., dysplastic nevus to melanoma).",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         snomedCode: {
           type: "string",
+          pattern: "^[0-9]{6,18}$",
           description: "SNOMED CT code of the condition",
         },
       },
@@ -85,9 +95,11 @@ export const ontologyTools = [
       "Map a SNOMED CT code to ICD-10 diagnosis codes. Useful for understanding official diagnosis classifications.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         snomedCode: {
           type: "string",
+          pattern: "^[0-9]{6,18}$",
           description: "SNOMED CT code to map",
         },
       },
@@ -101,9 +113,11 @@ export const ontologyTools = [
       "Get risk factors associated with a specific condition. Returns factors like family history, skin type, UV exposure.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         snomedCode: {
           type: "string",
+          pattern: "^[0-9]{6,18}$",
           description: "SNOMED CT code of the condition",
         },
       },
@@ -117,10 +131,13 @@ export const ontologyTools = [
       "Describe named educational skin-health factors from a list of factor IDs. Does not calculate a risk score or recommend urgency.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         riskFactorIds: {
           type: "array",
-          items: { type: "string" },
+          items: { type: "string", pattern: "^[A-Za-z0-9_-]{1,64}$" },
+          minItems: 1,
+          maxItems: 50,
           description:
             "Array of risk factor IDs (e.g., ['FAIR_SKIN', 'FAMILY_HISTORY', 'UV_EXPOSURE'])",
         },
@@ -132,9 +149,10 @@ export const ontologyTools = [
     name: "classify_lesion_features",
     annotations: { readOnlyHint: true, openWorldHint: true },
     description:
-      "Describe which ABCDE criteria were supplied for a lesion. Educational only — does not name a condition, assign a risk level, or recommend urgency.",
+      "Describe which ABCDE criteria were supplied for a lesion. Educational only — does not name a condition, assign a risk level, or recommend urgency. Supply at least one of the five features.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         asymmetry: {
           type: "boolean",
@@ -158,6 +176,7 @@ export const ontologyTools = [
         },
       },
       required: [],
+      minProperties: 1,
     },
   },
   {
@@ -167,6 +186,7 @@ export const ontologyTools = [
       "Get a list of all malignant skin conditions in the ontology. Use for educational purposes about skin cancers.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {},
       required: [],
     },
