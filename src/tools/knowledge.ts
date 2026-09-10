@@ -40,7 +40,7 @@ export const ontologyTools = [
       properties: {
         snomedCode: {
           type: "string",
-          description: "SNOMED CT code (e.g., '372244006' for melanoma)",
+          description: "SNOMED CT code (e.g., '93655004' for melanoma)",
         },
       },
       required: ["snomedCode"],

@@ -28,9 +28,9 @@ test("no credentials means mock mode, and results say so", async () => {
   assert.equal(client.mockMode, true);
   assert.equal(client.dataSource, "mock");
 
-  const concept = await client.getConceptBySnomedCode("372244006");
+  const concept = await client.getConceptBySnomedCode("93655004");
   assert.ok(concept, "expected bundled data in mock mode");
-  assert.equal(concept.snomedCode, "372244006");
+  assert.equal(concept.snomedCode, "93655004");
 });
 
 test("a URL without a key is still mock mode", () => {
@@ -44,21 +44,21 @@ test("with a backend configured, a failure is an error, never bundled data", asy
 
   // Every call that used to fall back. If any of these resolves, this client
   // has started answering for a backend it never reached.
-  await assert.rejects(() => client.getConceptBySnomedCode("372244006"), /Ontology API/);
+  await assert.rejects(() => client.getConceptBySnomedCode("93655004"), /Ontology API/);
   await assert.rejects(() => client.searchConcepts("melanoma"), /Ontology API/);
   await assert.rejects(() => client.getConceptsByCategory("MALIGNANT"), /Ontology API/);
-  await assert.rejects(() => client.getProgressionPaths("372244006"), /Ontology API/);
-  await assert.rejects(() => client.mapSnomedToIcd10("372244006"), /Ontology API/);
-  await assert.rejects(() => client.getRiskFactorsForCondition("372244006"), /Ontology API/);
+  await assert.rejects(() => client.getProgressionPaths("93655004"), /Ontology API/);
+  await assert.rejects(() => client.mapSnomedToIcd10("93655004"), /Ontology API/);
+  await assert.rejects(() => client.getRiskFactorsForCondition("93655004"), /Ontology API/);
   await assert.rejects(() => client.assessRisk(["FAIR_SKIN"]), /Ontology API/);
   await assert.rejects(() => client.getAbcdeCriteria(), /Ontology API/);
-  await assert.rejects(() => client.getFeaturesForCondition("372244006"), /Ontology API/);
+  await assert.rejects(() => client.getFeaturesForCondition("93655004"), /Ontology API/);
   await assert.rejects(() => client.getMalignantConditions(), /Ontology API/);
 });
 
 test("the error carries a reason but never the response body", async () => {
   await assert.rejects(
-    () => realClient().getConceptBySnomedCode("372244006"),
+    () => realClient().getConceptBySnomedCode("93655004"),
     (error) => {
       assert.match(error.message, /Ontology API get concept failed/);
       assert.match(error.message, /the backend could not be reached/);
@@ -73,7 +73,7 @@ test("mock mode makes no network call at all", async () => {
   // per-call rather than once at construction, this would hang or throw.
   const client = new OntologyApiClient({ baseUrl: UNREACHABLE, apiKey: "" });
   const started = Date.now();
-  const concept = await client.getConceptBySnomedCode("372244006");
+  const concept = await client.getConceptBySnomedCode("93655004");
   assert.ok(concept);
   assert.ok(Date.now() - started < 1000, "that looked like a real network attempt");
 });
