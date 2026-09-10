@@ -22,6 +22,7 @@ export const moleTools = [
       "List a user's recorded moles and last photo dates. Educational records only — not a risk ranking.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         userId: {
           type: "string",
@@ -40,6 +41,7 @@ export const moleTools = [
       "Return recorded ABCDE feature measurements for a mole. Educational only — not a diagnosis or risk level.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         moleId: {
           type: "string",
@@ -58,6 +60,7 @@ export const moleTools = [
       "Return recorded appearance changes for a mole over time. Observations only — not a trend verdict.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         moleId: {
           type: "string",
@@ -76,6 +79,7 @@ export const moleTools = [
       "List named educational skin-health factors on a user profile. Does not calculate a risk score.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         userId: {
           type: "string",
@@ -94,6 +98,7 @@ export const moleTools = [
       "Compare two recorded mole photos. Reports observed differences only — not a diagnosis.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         moleId: {
           type: "string",

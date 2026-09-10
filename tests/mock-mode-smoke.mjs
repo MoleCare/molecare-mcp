@@ -36,6 +36,7 @@ const EXPECTED_RESOURCE_URIS = [
 const TOOL_ARGUMENTS = {
   assess_risk_from_factors: { riskFactorIds: ["FAIR_SKIN", "FAMILY_HISTORY"] },
   check_server_health: { instanceId: "i-0abc123def456789a" },
+  classify_lesion_features: { asymmetry: true, diameterMm: 7 },
   compare_model_runs: { runIds: ["run-001-abc123", "run-002-def456"] },
   compare_moles: {
     moleId: "mole-001",
@@ -104,7 +105,10 @@ test("built server answers every tool and resource in mock mode", async () => {
         {
           name: tool.name,
           arguments: {
-            userId: `smoke-user-${index}`,
+            // Every schema is strict, so userId only goes to tools that declare it.
+            ...("userId" in (tool.inputSchema.properties ?? {})
+              ? { userId: `smoke-user-${index}` }
+              : {}),
             ...minimalArguments(tool),
             ...TOOL_ARGUMENTS[tool.name],
           },

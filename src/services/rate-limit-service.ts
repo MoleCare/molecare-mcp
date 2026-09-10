@@ -57,6 +57,10 @@ export class RateLimitService {
     this.cleanupInterval = setInterval(() => {
       this.cleanupStaleEntries();
     }, 5 * 60 * 1000);
+    // A housekeeping timer must never be what keeps the process alive; the
+    // stdio transport does that. Same as the cache. Without this, anything
+    // that imports this module (a test, a one-shot CLI) never exits.
+    this.cleanupInterval.unref();
   }
 
   /**

@@ -16,6 +16,8 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
+import { z } from "zod";
+
 import { rateLimitService } from "./services/rate-limit-service.js";
 import { validateInput, TOOL_SCHEMAS } from "./utils/validation.js";
 import { logger, createTimer } from "./utils/logger.js";
@@ -25,6 +27,12 @@ export interface ToolContext {
   userId: string;
   /** Milliseconds elapsed since the call started. */
   timer: () => number;
+}
+
+/** What registration needs from a tool: its name and the schema it advertises. */
+export interface AdvertisedTool {
+  name: string;
+  inputSchema: Record<string, unknown>;
 }
 
 export type ToolDispatch = (
@@ -46,15 +54,46 @@ function errorResult(code: string, message: string, tool: string) {
 }
 
 /**
+ * One validator per tool, derived from the schema the tool advertises.
+ *
+ * Validation used to be opt-in: a hand-kept map of zod schemas keyed by tool
+ * name, and a tool missing from the map ran with its arguments unchecked.
+ * Eight of the fourteen public tools were missing, and zod's default object
+ * silently dropped unknown keys, so a misspelt feature name reached
+ * classify_lesion_features as "no features" and was answered with isError
+ * false. Deriving the validator from the advertised inputSchema means every
+ * tool is checked against exactly what the client was told, and a new tool
+ * cannot be forgotten. The hand-written map stays as a second, stricter layer
+ * where it exists.
+ */
+export function validatorsFor(tools: AdvertisedTool[]): Map<string, z.ZodType> {
+  const validators = new Map<string, z.ZodType>();
+  for (const tool of tools) {
+    try {
+      validators.set(
+        tool.name,
+        z.fromJSONSchema(tool.inputSchema as Parameters<typeof z.fromJSONSchema>[0])
+      );
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      throw new Error(`Tool ${tool.name} advertises an inputSchema that cannot be validated: ${reason}`);
+    }
+  }
+  return validators;
+}
+
+/**
  * Wire up ListTools and CallTool for a server, applying validation and
  * rate limiting before delegating to `dispatch`.
  */
 export function registerTools(
   server: Server,
-  tools: unknown[],
+  tools: AdvertisedTool[],
   toolCosts: Record<string, number>,
   dispatch: ToolDispatch
 ): void {
+  const validators = validatorsFor(tools);
+
   server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }));
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -64,9 +103,12 @@ export function registerTools(
     // Extract user ID from request context or arguments
     const userId = (args?.userId as string) || "anonymous";
 
-    // Validate input if schema exists
-    const schema = TOOL_SCHEMAS[name];
-    if (schema) {
+    // The advertised schema first, then any stricter hand-written one. An
+    // unknown tool has neither and falls through to dispatch, which rejects it.
+    const layers = [validators.get(name), TOOL_SCHEMAS[name]].filter(
+      (schema): schema is z.ZodType => Boolean(schema)
+    );
+    for (const schema of layers) {
       const validation = validateInput(schema, args);
       if (!validation.success) {
         logger.warn(`Validation failed for ${name}`, { error: validation.error });
