@@ -120,7 +120,8 @@ export function registerTools(
     const rateLimitResult = rateLimitService.tryConsume(userId, toolCosts[name] || 1);
 
     if (!rateLimitResult.allowed) {
-      logger.warn(`Rate limit exceeded for ${userId}`, { tool: name });
+      // The id goes in data, where the logger hashes it, never in the message.
+      logger.warn("Rate limit exceeded", { tool: name, userId });
       return {
         content: [
           {
