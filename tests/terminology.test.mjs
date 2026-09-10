@@ -20,9 +20,9 @@
  * "fix" them.
  */
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import test from "node:test";
 
 import { OntologyApiClient } from "../dist/api/ontology-client.js";
@@ -124,12 +124,35 @@ test("every shipped SNOMED code is a valid identifier and names the right concep
   }
 });
 
-test("no retired or invalid code has crept back into the built server", () => {
-  const blobs = ["dist/api/ontology-client.js", "dist/server.js", "dist/tools/knowledge.js"]
-    .map((f) => readFileSync(join(ROOT, f), "utf8"))
-    .join("\n");
-  for (const [code, why] of Object.entries(RETIRED)) {
-    assert.ok(!blobs.includes(code), `${code} is back: ${why}`);
+/** Every text file in the repository that a reader or a workflow could copy a code from. */
+function repoTextFiles(dir, out = []) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (["node_modules", ".git", "coverage"].includes(entry.name)) continue;
+    if (entry.name === "package-lock.json") continue; // integrity hashes, not prose
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) repoTextFiles(path, out);
+    else if (/\.(ts|js|mjs|cjs|json|ya?ml|md|txt|sh)$/.test(entry.name)) out.push(path);
+  }
+  return out;
+}
+
+test("no retired or invalid code survives anywhere in the repository", () => {
+  // Not only the built server. The packaged-install smoke in ci.yml called
+  // map_snomed_to_icd10 with the retired melanoma code, and a scan of three
+  // dist files let that through until CI failed on it. The README and docs
+  // are where a reader would copy a code from.
+  const self = fileURLToPath(import.meta.url);
+  const files = repoTextFiles(ROOT).filter((f) => f !== self);
+  assert.ok(
+    files.some((f) => f.endsWith(join(".github", "workflows", "ci.yml"))),
+    "the workflow files were not scanned",
+  );
+  assert.ok(files.some((f) => f.endsWith(join("dist", "server.js"))), "the built server was not scanned");
+  for (const file of files) {
+    const text = readFileSync(file, "utf8");
+    for (const [code, why] of Object.entries(RETIRED)) {
+      assert.ok(!text.includes(code), `${relative(ROOT, file)} carries ${code}: ${why}`);
+    }
   }
 });
 
