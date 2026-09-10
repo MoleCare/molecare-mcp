@@ -49,6 +49,7 @@ import { logger } from "./utils/logger.js";
 import { registerTools, startServer, type ToolContext } from "./runtime.js";
 
 
+import { describeFatal } from "./utils/safe-error.js";
 // Initialize API client
 const apiClient = new MoleCareApiClient({
   baseUrl: process.env.MOLECARE_API_URL || "http://localhost:8080/api",
@@ -392,6 +393,6 @@ async function getOntologyResource(uri: string): Promise<any | null> {
 // =============================================================================
 
 startServer(server, "MoleCare MCP Server").catch((error) => {
-  console.error("Fatal error:", error);
+  console.error("Fatal error:", describeFatal(error));
   process.exit(1);
 });

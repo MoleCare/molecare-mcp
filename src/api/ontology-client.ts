@@ -7,6 +7,7 @@
  */
 
 import axios, { AxiosInstance } from "axios";
+import { describeError } from "../utils/safe-error.js";
 import {
   educationalClassification,
   educationalRiskReview,
@@ -105,7 +106,7 @@ export class OntologyApiClient {
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to get concept:", error);
+      console.error("Failed to get concept:", describeError(error));
       return this.getMockConcept(snomedCode);
     }
   }
@@ -118,7 +119,7 @@ export class OntologyApiClient {
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to search concepts:", error);
+      console.error("Failed to search concepts:", describeError(error));
       return this.getMockSearchResults(query);
     }
   }
@@ -130,7 +131,7 @@ export class OntologyApiClient {
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to get concepts by category:", error);
+      console.error("Failed to get concepts by category:", describeError(error));
       return [];
     }
   }
@@ -142,7 +143,7 @@ export class OntologyApiClient {
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to get progressions:", error);
+      console.error("Failed to get progressions:", describeError(error));
       return this.getMockProgressions(snomedCode);
     }
   }
@@ -158,7 +159,7 @@ export class OntologyApiClient {
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to map SNOMED to ICD-10:", error);
+      console.error("Failed to map SNOMED to ICD-10:", describeError(error));
       return this.getMockIcd10Mappings(snomedCode);
     }
   }
@@ -174,7 +175,7 @@ export class OntologyApiClient {
       );
       return this.withoutRelativeRisk(response.data.data);
     } catch (error) {
-      console.error("Failed to get risk factors:", error);
+      console.error("Failed to get risk factors:", describeError(error));
       return this.withoutRelativeRisk(this.getMockRiskFactors());
     }
   }
@@ -200,7 +201,7 @@ export class OntologyApiClient {
         response.data.data
       );
     } catch (error) {
-      console.error("Failed to assess risk:", error);
+      console.error("Failed to assess risk:", describeError(error));
       return this.getMockRiskAssessment(riskFactorIds);
     }
   }
@@ -216,7 +217,7 @@ export class OntologyApiClient {
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to get ABCDE criteria:", error);
+      console.error("Failed to get ABCDE criteria:", describeError(error));
       return this.getMockAbcdeCriteria();
     }
   }
@@ -228,7 +229,7 @@ export class OntologyApiClient {
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to get features:", error);
+      console.error("Failed to get features:", describeError(error));
       return [];
     }
   }
@@ -247,7 +248,7 @@ export class OntologyApiClient {
       );
       return sanitizeClassification(features, response.data.data);
     } catch (error) {
-      console.error("Failed to classify lesion:", error);
+      console.error("Failed to classify lesion:", describeError(error));
       return this.getMockClassification(features);
     }
   }
@@ -259,7 +260,7 @@ export class OntologyApiClient {
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to get malignant conditions:", error);
+      console.error("Failed to get malignant conditions:", describeError(error));
       return this.getMockMalignantConditions();
     }
   }
