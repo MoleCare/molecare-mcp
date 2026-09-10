@@ -141,7 +141,7 @@ factors, all with provenance metadata.
 
 | | Bundled |
 |---|---|
-| SNOMED CT concepts | **7** — melanoma, melanoma in situ, BCC, SCC, actinic keratosis, dysplastic naevus, pigmented naevus |
+| SNOMED CT concepts | **7** — melanoma, melanoma in situ, BCC, SCC, actinic keratosis, dysplastic naevus, melanocytic naevus |
 | WHO ICD-10 categories | **25** — malignant, in situ, benign, precancerous, inflammatory and pigmentation, across Chapters II and XII |
 | SNOMED → ICD-10 mappings | **9 rows covering all 7 concepts** — some concepts have more than one plausible target |
 

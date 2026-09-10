@@ -49,6 +49,7 @@ import {
   findIcd10,
   terminologyCoverage,
 } from "./resources/terminology-data.js";
+import { EDUCATIONAL_RISK_NOTE } from "./clinical-boundary.js";
 
 // Utilities
 import { cache, CACHE_TTL } from "./utils/cache.js";
@@ -56,11 +57,19 @@ import { logger } from "./utils/logger.js";
 import { registerTools, startServer, type ToolContext } from "./runtime.js";
 
 
+import { describeFatal } from "./utils/safe-error.js";
 // Initialize API client
 const apiClient = new MoleCareApiClient({
   baseUrl: process.env.MOLECARE_API_URL || "http://localhost:8080/api",
   apiKey: process.env.MOLECARE_API_KEY || "",
 });
+
+logger.info(
+  apiClient.mockMode
+    ? "MoleCare API: mock mode — set MOLECARE_API_URL and MOLECARE_API_KEY to use a real backend"
+    : "MoleCare API: real backend configured; failures are reported, never replaced with mock data",
+  { dataSource: apiClient.dataSource }
+);
 
 // Initialize Ontology client
 const ontologyClient = new OntologyApiClient({
@@ -177,7 +186,7 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => ({
     {
       uri: "molecare://ontology/risk-factors",
       name: "Risk Factors Guide",
-      description: "Complete guide to skin cancer risk factors and their relative risks",
+      description: "Named educational skin-health factors. No multipliers, scores or risk bands.",
       mimeType: "application/json",
     },
   ],
@@ -299,12 +308,12 @@ async function getOntologyResource(uri: string): Promise<any | null> {
         description: "Factors that increase the risk of developing skin cancer",
         disclaimer:
           "This information is for educational purposes only. Having risk factors does not mean you will develop skin cancer.",
+        note: EDUCATIONAL_RISK_NOTE,
         riskFactors: [
           {
             id: "FAIR_SKIN",
             name: "Fair skin (Fitzpatrick Type I-II)",
             category: "Genetic",
-            relativeRisk: 2.5,
             description:
               "People with fair skin that burns easily have higher risk",
           },
@@ -312,7 +321,6 @@ async function getOntologyResource(uri: string): Promise<any | null> {
             id: "FAMILY_HISTORY",
             name: "Family history of melanoma",
             category: "Genetic",
-            relativeRisk: 3.0,
             description:
               "Having a first-degree relative with melanoma increases risk",
           },
@@ -320,7 +328,6 @@ async function getOntologyResource(uri: string): Promise<any | null> {
             id: "MANY_MOLES",
             name: "Many moles (50+)",
             category: "Phenotypic",
-            relativeRisk: 2.0,
             description:
               "Having more than 50 common moles increases melanoma risk",
           },
@@ -328,14 +335,12 @@ async function getOntologyResource(uri: string): Promise<any | null> {
             id: "ATYPICAL_MOLES",
             name: "Atypical moles",
             category: "Phenotypic",
-            relativeRisk: 5.0,
             description: "Presence of dysplastic nevi significantly increases risk",
           },
           {
             id: "UV_EXPOSURE",
             name: "Excessive UV exposure",
             category: "Environmental",
-            relativeRisk: 2.0,
             description:
               "History of sunburns or frequent tanning bed use",
           },
@@ -343,7 +348,6 @@ async function getOntologyResource(uri: string): Promise<any | null> {
             id: "PERSONAL_HISTORY",
             name: "Personal history of skin cancer",
             category: "Medical",
-            relativeRisk: 9.0,
             description:
               "Previous skin cancer significantly increases risk of another",
           },
@@ -367,6 +371,6 @@ async function getOntologyResource(uri: string): Promise<any | null> {
 // =============================================================================
 
 startServer(server, "MoleCare MCP Server").catch((error) => {
-  console.error("Fatal error:", error);
+  console.error("Fatal error:", describeFatal(error));
   process.exit(1);
 });

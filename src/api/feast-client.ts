@@ -11,6 +11,7 @@
 
 import axios, { AxiosInstance } from "axios";
 
+import { describeError } from "../utils/safe-error.js";
 export interface FeastConfig {
   baseUrl: string;
   projectName?: string;
@@ -119,7 +120,7 @@ export class FeastClient {
       const response = await this.client.get("/feature-views");
       return response.data.feature_views || [];
     } catch (error) {
-      console.error("Feast API error:", error);
+      console.error("Feast API error:", describeError(error));
       return this.getMockFeatureViews();
     }
   }
@@ -136,7 +137,7 @@ export class FeastClient {
       const response = await this.client.get(`/feature-views/${name}`);
       return response.data;
     } catch (error) {
-      console.error("Feast API error:", error);
+      console.error("Feast API error:", describeError(error));
       return null;
     }
   }
@@ -157,7 +158,7 @@ export class FeastClient {
       const response = await this.client.get("/entities");
       return response.data.entities || [];
     } catch (error) {
-      console.error("Feast API error:", error);
+      console.error("Feast API error:", describeError(error));
       return this.getMockEntities();
     }
   }
@@ -174,7 +175,7 @@ export class FeastClient {
       const response = await this.client.get(`/entities/${name}`);
       return response.data;
     } catch (error) {
-      console.error("Feast API error:", error);
+      console.error("Feast API error:", describeError(error));
       return null;
     }
   }
@@ -203,7 +204,7 @@ export class FeastClient {
       });
       return response.data;
     } catch (error) {
-      console.error("Feast API error:", error);
+      console.error("Feast API error:", describeError(error));
       return this.getMockOnlineFeatures(featureViewName, entityKey);
     }
   }
@@ -224,7 +225,7 @@ export class FeastClient {
       const response = await this.client.get("/feature-freshness");
       return response.data.freshness || [];
     } catch (error) {
-      console.error("Feast API error:", error);
+      console.error("Feast API error:", describeError(error));
       return this.getMockFeatureFreshness();
     }
   }
@@ -245,7 +246,7 @@ export class FeastClient {
       const response = await this.client.get("/stats");
       return response.data;
     } catch (error) {
-      console.error("Feast API error:", error);
+      console.error("Feast API error:", describeError(error));
       return this.getMockStoreStats();
     }
   }

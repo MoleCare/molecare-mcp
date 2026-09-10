@@ -123,11 +123,11 @@ test("category filter returns only that category", () => {
 
 test("search finds concepts by name, alias and code", () => {
   assert.ok(searchConcepts("melanoma").length >= 2);
-  assert.ok(searchConcepts("BCC").some((c) => c.snomedCode === "254651007"));
-  assert.ok(searchConcepts("mole").some((c) => c.snomedCode === "21119008"));
+  assert.ok(searchConcepts("BCC").some((c) => c.snomedCode === "254701007"));
+  assert.ok(searchConcepts("mole").some((c) => c.snomedCode === "400010006"));
   assert.deepEqual(
-    searchConcepts("372244006").map((c) => c.snomedCode),
-    ["372244006"]
+    searchConcepts("93655004").map((c) => c.snomedCode),
+    ["93655004"]
   );
   assert.equal(searchConcepts("xyzzy").length, 0);
   assert.equal(searchConcepts("   ").length, SNOMED_CONCEPTS.length);
@@ -151,13 +151,13 @@ test("the SNOMED concept set has not grown past what was already shipped", () =>
   assert.deepEqual(
     [...SNOMED_CONCEPTS.map((c) => c.snomedCode)].sort(),
     [
-      "109264001",
-      "21119008",
-      "254651007",
-      "254652000",
+      "109266006",
+      "400010006",
       "254701007",
-      "372244006",
-      "92564006",
+      "254651007",
+      "254818000",
+      "93655004",
+      "201101007",
     ].sort()
   );
   assert.match(TERMINOLOGY_PROVENANCE.snomedCt.redistribution, /not being expanded/);

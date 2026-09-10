@@ -22,9 +22,12 @@ export const moleTools = [
       "List a user's recorded moles and last photo dates. Educational records only — not a risk ranking.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         userId: {
           type: "string",
+          pattern: "^[A-Za-z0-9_-]{1,64}$",
+          maxLength: 64,
           description: "The user's unique identifier",
         },
       },
@@ -38,9 +41,12 @@ export const moleTools = [
       "Return recorded ABCDE feature measurements for a mole. Educational only — not a diagnosis or risk level.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         moleId: {
           type: "string",
+          pattern: "^[A-Za-z0-9_-]{1,64}$",
+          maxLength: 64,
           description: "The mole's unique identifier",
         },
       },
@@ -54,9 +60,12 @@ export const moleTools = [
       "Return recorded appearance changes for a mole over time. Observations only — not a trend verdict.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         moleId: {
           type: "string",
+          pattern: "^[A-Za-z0-9_-]{1,64}$",
+          maxLength: 64,
           description: "The mole's unique identifier",
         },
       },
@@ -70,9 +79,12 @@ export const moleTools = [
       "List named educational skin-health factors on a user profile. Does not calculate a risk score.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         userId: {
           type: "string",
+          pattern: "^[A-Za-z0-9_-]{1,64}$",
+          maxLength: 64,
           description: "The user's unique identifier",
         },
       },
@@ -86,17 +98,24 @@ export const moleTools = [
       "Compare two recorded mole photos. Reports observed differences only — not a diagnosis.",
     inputSchema: {
       type: "object" as const,
+      additionalProperties: false,
       properties: {
         moleId: {
           type: "string",
+          pattern: "^[A-Za-z0-9_-]{1,64}$",
+          maxLength: 64,
           description: "The mole's unique identifier",
         },
         imageId1: {
           type: "string",
+          pattern: "^[A-Za-z0-9_-]{1,64}$",
+          maxLength: 64,
           description: "First image ID (older)",
         },
         imageId2: {
           type: "string",
+          pattern: "^[A-Za-z0-9_-]{1,64}$",
+          maxLength: 64,
           description: "Second image ID (newer)",
         },
       },
@@ -132,6 +151,7 @@ export async function dispatchMoleTool(
             text: JSON.stringify(
               {
                 userId: args.userId,
+                dataSource: apiClient.dataSource,
                 totalMoles: moles.length,
                 moles: moles.map((m) => publicMoleRecord(m)),
                 disclaimer: EDUCATIONAL_ONLY_NOTE,
@@ -153,6 +173,7 @@ export async function dispatchMoleTool(
             text: JSON.stringify(
               {
                 moleId: args.moleId,
+                dataSource: apiClient.dataSource,
                 analysisDate: analysis.date,
                 abcdeScores: {
                   asymmetry: {
@@ -196,6 +217,7 @@ export async function dispatchMoleTool(
             text: JSON.stringify(
               {
                 moleId: args.moleId,
+                dataSource: apiClient.dataSource,
                 trackingStarted: history.startDate,
                 totalImages: history.imageCount,
                 changes: Array.isArray(history.changes)
@@ -224,6 +246,7 @@ export async function dispatchMoleTool(
             text: JSON.stringify(
               {
                 userId: args.userId,
+                dataSource: apiClient.dataSource,
                 skinType: profile.skinType,
                 riskFactors: profile.riskFactors,
                 notes: getPersonalizedRecommendations(profile),
@@ -251,6 +274,7 @@ export async function dispatchMoleTool(
             text: JSON.stringify(
               {
                 moleId: args.moleId,
+                dataSource: apiClient.dataSource,
                 comparison: publicComparison({
                   sizeChangePercent: comparison.sizeChangePercent,
                   colorChange: comparison.colorChange,

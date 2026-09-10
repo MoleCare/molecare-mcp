@@ -7,6 +7,7 @@
  */
 
 import axios, { AxiosInstance } from "axios";
+import { describeError } from "../utils/safe-error.js";
 import {
   educationalClassification,
   educationalRiskReview,
@@ -33,6 +34,8 @@ import {
 interface OntologyApiConfig {
   baseUrl: string;
   apiKey: string;
+  /** Force bundled data regardless of the URL and key. Tests use this. */
+  mockMode?: boolean;
 }
 
 interface Concept {
@@ -88,10 +91,22 @@ interface ApiResponse<T> {
   error?: string;
 }
 
+export type OntologyDataSource = "mock" | "ontology-api";
+
 export class OntologyApiClient {
   private client: AxiosInstance;
+  /** True when no backend is configured, so every answer is bundled data. */
+  readonly mockMode: boolean;
+  /** What every knowledge result reports as its origin. */
+  readonly dataSource: OntologyDataSource;
 
   constructor(config: OntologyApiConfig) {
+    // Same rule as MoleCareApiClient: a backend needs both a URL and a key.
+    // Without them this serves bundled educational data and says so. With
+    // them, a failure is an error, never bundled data wearing a real answer's
+    // clothes.
+    this.mockMode = config.mockMode ?? !(config.baseUrl && config.apiKey);
+    this.dataSource = this.mockMode ? "mock" : "ontology-api";
     this.client = axios.create({
       baseURL: `${config.baseUrl}/v1/ontology`,
       headers: {
@@ -107,18 +122,19 @@ export class OntologyApiClient {
   // ==========================================================================
 
   async getConceptBySnomedCode(snomedCode: string): Promise<Concept | null> {
+    if (this.mockMode) return this.getMockConcept(snomedCode);
     try {
       const response = await this.client.get<ApiResponse<Concept>>(
         `/concepts/${snomedCode}`
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to get concept:", error);
-      return this.getMockConcept(snomedCode);
+      throw this.apiError("get concept", error);
     }
   }
 
   async searchConcepts(query: string): Promise<Concept[]> {
+    if (this.mockMode) return this.getMockSearchResults(query);
     try {
       const response = await this.client.get<ApiResponse<Concept[]>>(
         `/concepts/search`,
@@ -126,32 +142,31 @@ export class OntologyApiClient {
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to search concepts:", error);
-      return this.getMockSearchResults(query);
+      throw this.apiError("search concepts", error);
     }
   }
 
   async getConceptsByCategory(category: string): Promise<Concept[]> {
+    if (this.mockMode) return this.getMockConceptsByCategory(category);
     try {
       const response = await this.client.get<ApiResponse<Concept[]>>(
         `/concepts/category/${category}`
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to get concepts by category:", error);
-      return this.getMockConceptsByCategory(category);
+      throw this.apiError("get concepts by category", error);
     }
   }
 
   async getProgressionPaths(snomedCode: string): Promise<Progression[]> {
+    if (this.mockMode) return this.getMockProgressions(snomedCode);
     try {
       const response = await this.client.get<ApiResponse<Progression[]>>(
         `/concepts/${snomedCode}/progressions`
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to get progressions:", error);
-      return this.getMockProgressions(snomedCode);
+      throw this.apiError("get progressions", error);
     }
   }
 
@@ -160,14 +175,14 @@ export class OntologyApiClient {
   // ==========================================================================
 
   async mapSnomedToIcd10(snomedCode: string): Promise<Diagnosis[]> {
+    if (this.mockMode) return this.getMockIcd10Mappings(snomedCode);
     try {
       const response = await this.client.get<ApiResponse<Diagnosis[]>>(
         `/concepts/${snomedCode}/icd10`
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to map SNOMED to ICD-10:", error);
-      return this.getMockIcd10Mappings(snomedCode);
+      throw this.apiError("map SNOMED to ICD-10", error);
     }
   }
 
@@ -176,14 +191,14 @@ export class OntologyApiClient {
   // ==========================================================================
 
   async getRiskFactorsForCondition(snomedCode: string): Promise<RiskFactor[]> {
+    if (this.mockMode) return this.withoutRelativeRisk(this.getMockRiskFactors());
     try {
       const response = await this.client.get<ApiResponse<RiskFactor[]>>(
         `/concepts/${snomedCode}/risk-factors`
       );
       return this.withoutRelativeRisk(response.data.data);
     } catch (error) {
-      console.error("Failed to get risk factors:", error);
-      return this.withoutRelativeRisk(this.getMockRiskFactors());
+      throw this.apiError("get risk factors", error);
     }
   }
 
@@ -198,6 +213,7 @@ export class OntologyApiClient {
 
   async assessRisk(riskFactorIds: string[]): Promise<EducationalRiskReview> {
     const named = this.namedFactorsFromIds(riskFactorIds);
+    if (this.mockMode) return this.getMockRiskAssessment(riskFactorIds);
     try {
       const response = await this.client.post<ApiResponse<unknown>>(
         `/risk-assessment`,
@@ -208,8 +224,7 @@ export class OntologyApiClient {
         response.data.data
       );
     } catch (error) {
-      console.error("Failed to assess risk:", error);
-      return this.getMockRiskAssessment(riskFactorIds);
+      throw this.apiError("assess risk", error);
     }
   }
 
@@ -218,26 +233,26 @@ export class OntologyApiClient {
   // ==========================================================================
 
   async getAbcdeCriteria(): Promise<Feature[]> {
+    if (this.mockMode) return this.getMockAbcdeCriteria();
     try {
       const response = await this.client.get<ApiResponse<Feature[]>>(
         `/features/abcde`
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to get ABCDE criteria:", error);
-      return this.getMockAbcdeCriteria();
+      throw this.apiError("get ABCDE criteria", error);
     }
   }
 
   async getFeaturesForCondition(snomedCode: string): Promise<Feature[]> {
+    if (this.mockMode) return [];
     try {
       const response = await this.client.get<ApiResponse<Feature[]>>(
         `/concepts/${snomedCode}/features`
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to get features:", error);
-      return [];
+      throw this.apiError("get features", error);
     }
   }
 
@@ -248,6 +263,7 @@ export class OntologyApiClient {
   async classifyLesion(
     features: LesionFeatures
   ): Promise<EducationalClassification> {
+    if (this.mockMode) return this.getMockClassification(features);
     try {
       const response = await this.client.post<ApiResponse<unknown>>(
         `/classify`,
@@ -255,21 +271,33 @@ export class OntologyApiClient {
       );
       return sanitizeClassification(features, response.data.data);
     } catch (error) {
-      console.error("Failed to classify lesion:", error);
-      return this.getMockClassification(features);
+      throw this.apiError("classify lesion", error);
     }
   }
 
   async getMalignantConditions(): Promise<Concept[]> {
+    if (this.mockMode) return this.getMockMalignantConditions();
     try {
       const response = await this.client.get<ApiResponse<Concept[]>>(
         `/concepts/malignant`
       );
       return response.data.data;
     } catch (error) {
-      console.error("Failed to get malignant conditions:", error);
-      return this.getMockMalignantConditions();
+      throw this.apiError("get malignant conditions", error);
     }
+  }
+
+  /**
+   * A backend failure surfaces as an error the tool runtime turns into an
+   * isError result. It never becomes bundled data: a caller who configured a
+   * real ontology must not receive canned clinical answers that did not come
+   * from it. The message carries the HTTP status, never the response body.
+   */
+  private apiError(operation: string, error: unknown): Error {
+    if (error instanceof Error && !axios.isAxiosError(error)) return error;
+    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+    const reason = status ? `HTTP ${status}` : "the backend could not be reached";
+    return new Error(`Ontology API ${operation} failed: ${reason}`);
   }
 
   // ==========================================================================
@@ -382,6 +410,20 @@ export class OntologyApiClient {
   }
 
   private namedFactorsFromIds(riskFactorIds: string[]): NamedRiskFactor[] {
+    // Not a substitute for a backend: this is a lookup table that turns ids the
+    // caller supplied into names.
+    //
+    // The array check is load-bearing. Given a string, Array.includes below
+    // becomes String.includes, which does a substring match, so
+    // riskFactorIds: "FAIR_SKIN_EXTRA" used to report FAIR_SKIN as a factor the
+    // caller never named. Attributing a skin-health risk factor to someone who
+    // does not have one is exactly the kind of quiet wrong answer this server
+    // must not produce.
+    if (!Array.isArray(riskFactorIds)) {
+      throw new Error(
+        `riskFactorIds must be an array of factor ids, received ${typeof riskFactorIds}`,
+      );
+    }
     return this.getMockRiskFactors()
       .filter((rf) => riskFactorIds.includes(rf.factorId))
       .map(({ factorId, name, description }) => ({
@@ -478,13 +520,13 @@ const BUNDLED_PROGRESSIONS: Record<
   string,
   ReadonlyArray<{ to: string; likelihood: string; timeframe: string }>
 > = {
-  "254701007": [
-    { to: "109264001", likelihood: "POSSIBLE", timeframe: "MONTHS_TO_YEARS" },
+  "254818000": [
+    { to: "109266006", likelihood: "POSSIBLE", timeframe: "MONTHS_TO_YEARS" },
   ],
-  "109264001": [
-    { to: "372244006", likelihood: "POSSIBLE", timeframe: "MONTHS_TO_YEARS" },
+  "109266006": [
+    { to: "93655004", likelihood: "POSSIBLE", timeframe: "MONTHS_TO_YEARS" },
   ],
-  "92564006": [
-    { to: "254652000", likelihood: "POSSIBLE", timeframe: "YEARS" },
+  "201101007": [
+    { to: "254651007", likelihood: "POSSIBLE", timeframe: "YEARS" },
   ],
 };

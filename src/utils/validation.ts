@@ -5,6 +5,14 @@
 
 import { z } from "zod";
 
+/**
+ * Record identifiers travel into backend request paths. A plain identifier is
+ * all that is ever valid; anything else is rejected before a request is built.
+ */
+export const IdentifierSchema = z
+  .string()
+  .regex(/^[A-Za-z0-9_-]{1,64}$/, "must be 1-64 letters, digits, '_' or '-'");
+
 // =============================================================================
 // Infrastructure Tools
 // =============================================================================
@@ -90,18 +98,26 @@ export const GetOnlineFeaturesSchema = z.object({
 // =============================================================================
 
 export const GetUserMolesSchema = z.object({
-  userId: z.string().min(1, "userId is required"),
-});
+  userId: IdentifierSchema,
+}).strict();
 
 export const GetMoleAnalysisSchema = z.object({
-  moleId: z.string().min(1, "moleId is required"),
-});
+  moleId: IdentifierSchema,
+}).strict();
+
+export const GetMoleChangesSchema = z.object({
+  moleId: IdentifierSchema,
+}).strict();
+
+export const GetUserRiskFactorsSchema = z.object({
+  userId: IdentifierSchema,
+}).strict();
 
 export const CompareMolesSchema = z.object({
-  moleId: z.string().min(1),
-  imageId1: z.string().min(1),
-  imageId2: z.string().min(1),
-});
+  moleId: IdentifierSchema,
+  imageId1: IdentifierSchema,
+  imageId2: IdentifierSchema,
+}).strict();
 
 export const ClassifyLesionFeaturesSchema = z.object({
   asymmetry: z.boolean().optional(),
@@ -109,7 +125,12 @@ export const ClassifyLesionFeaturesSchema = z.object({
   multipleColors: z.boolean().optional(),
   diameterMm: z.number().min(0).max(50).optional(),
   hasChanged: z.boolean().optional(),
-});
+})
+  .strict()
+  .refine(
+    (features) => Object.keys(features).length > 0,
+    "supply at least one feature: asymmetry, irregularBorder, multipleColors, diameterMm or hasChanged"
+  );
 
 // =============================================================================
 // EC2 Tools
@@ -194,7 +215,7 @@ export function validateInput<T>(
 
   // Format Zod errors nicely
   const errors = result.error.issues
-    .map((e) => `${e.path.join(".")}: ${e.message}`)
+    .map((e) => (e.path.length ? `${e.path.join(".")}: ${e.message}` : e.message))
     .join("; ");
 
   return { success: false, error: errors };
@@ -224,6 +245,8 @@ export const TOOL_SCHEMAS: Record<string, z.ZodSchema<any>> = {
   // Clinical
   get_user_moles: GetUserMolesSchema,
   get_mole_analysis: GetMoleAnalysisSchema,
+  get_mole_changes: GetMoleChangesSchema,
+  get_user_risk_factors: GetUserRiskFactorsSchema,
   compare_moles: CompareMolesSchema,
   classify_lesion_features: ClassifyLesionFeaturesSchema,
   // EC2

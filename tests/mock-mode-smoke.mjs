@@ -37,6 +37,7 @@ const EXPECTED_RESOURCE_URIS = [
 const TOOL_ARGUMENTS = {
   assess_risk_from_factors: { riskFactorIds: ["FAIR_SKIN", "FAMILY_HISTORY"] },
   check_server_health: { instanceId: "i-0abc123def456789a" },
+  classify_lesion_features: { asymmetry: true, diameterMm: 7 },
   compare_model_runs: { runIds: ["run-001-abc123", "run-002-def456"] },
   compare_moles: {
     moleId: "mole-001",
@@ -44,8 +45,8 @@ const TOOL_ARGUMENTS = {
     imageId2: "image-002",
   },
   get_app_metrics: { app: "web" },
-  get_condition_progression: { snomedCode: "254701007" },
-  get_condition_risk_factors: { snomedCode: "372244006" },
+  get_condition_progression: { snomedCode: "254818000" },
+  get_condition_risk_factors: { snomedCode: "93655004" },
   get_ec2_instance: { instanceId: "i-0abc123def456789a" },
   get_ec2_metrics: { instanceId: "i-0abc123def456789a" },
   get_feature_view_details: { name: "user_features" },
@@ -63,8 +64,8 @@ const TOOL_ARGUMENTS = {
   get_table_stats: { schema: "public" },
   get_user_moles: { userId: "user-001" },
   get_user_risk_factors: { userId: "user-001" },
-  lookup_medical_concept: { snomedCode: "372244006" },
-  map_snomed_to_icd10: { snomedCode: "372244006" },
+  lookup_medical_concept: { snomedCode: "93655004" },
+  map_snomed_to_icd10: { snomedCode: "93655004" },
   search_medical_concepts: { query: "melanoma" },
   search_medical_info: { query: "ABCDE" },
 };
@@ -105,7 +106,10 @@ test("built server answers every tool and resource in mock mode", async () => {
         {
           name: tool.name,
           arguments: {
-            userId: `smoke-user-${index}`,
+            // Every schema is strict, so userId only goes to tools that declare it.
+            ...("userId" in (tool.inputSchema.properties ?? {})
+              ? { userId: `smoke-user-${index}` }
+              : {}),
             ...minimalArguments(tool),
             ...TOOL_ARGUMENTS[tool.name],
           },

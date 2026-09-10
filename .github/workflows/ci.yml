@@ -80,7 +80,7 @@ jobs:
           printf '%s\n' \
             '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}' \
             '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
-            '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"map_snomed_to_icd10","arguments":{"snomedCode":"372244006"}}}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"map_snomed_to_icd10","arguments":{"snomedCode":"93655004"}}}' \
             > in.jsonl
           # The server is long-lived by design, so it never exits on stdin EOF —
           # timeout ends it once the responses are written.

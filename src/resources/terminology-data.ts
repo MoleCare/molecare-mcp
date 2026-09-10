@@ -59,13 +59,14 @@ export interface Icd10MappingRow {
 // =============================================================================
 // SNOMED CT CONCEPTS
 // Frozen at the set already shipped by this package — see the note above.
-// Identifiers and fully specified names were checked against the SNOMED
-// International browser; see TERMINOLOGY_PROVENANCE.snomedCt.
+// Identifiers were resolved against the SNOMED CT International Edition
+// (FHIR $lookup) and Verhoeff-checked; tests/terminology.test.mjs holds the
+// expected names. See TERMINOLOGY_PROVENANCE.snomedCt.
 // =============================================================================
 
 export const SNOMED_CONCEPTS: readonly BundledConcept[] = [
   {
-    snomedCode: "372244006",
+    snomedCode: "93655004",
     name: "Malignant melanoma of skin",
     description:
       "The most serious type of skin cancer, arising from melanocytes (pigment-producing cells).",
@@ -74,17 +75,17 @@ export const SNOMED_CONCEPTS: readonly BundledConcept[] = [
     searchAliases: ["melanoma", "malignant melanoma", "skin cancer"],
   },
   {
-    snomedCode: "109264001",
-    name: "Melanoma in situ",
+    snomedCode: "109266006",
+    name: "Melanoma in situ of skin",
     description:
-      "Melanoma confined to the epidermis, without invasion of the dermis.",
-    category: "PRECANCEROUS",
+      "Melanoma confined to the epidermis, without invasion of the dermis. Stage 0 melanoma: filed as malignant, as ICD-10 D03 files it under neoplasms.",
+    category: "MALIGNANT",
     severity: "MODERATE",
     searchAliases: ["melanoma in situ", "in situ melanoma", "stage 0 melanoma"],
   },
   {
-    snomedCode: "254651007",
-    name: "Basal cell carcinoma",
+    snomedCode: "254701007",
+    name: "Basal cell carcinoma of skin",
     description:
       "The most common type of skin cancer, arising from basal keratinocytes.",
     category: "MALIGNANT",
@@ -92,8 +93,8 @@ export const SNOMED_CONCEPTS: readonly BundledConcept[] = [
     searchAliases: ["basal cell carcinoma", "bcc", "rodent ulcer", "skin cancer"],
   },
   {
-    snomedCode: "254652000",
-    name: "Squamous cell carcinoma",
+    snomedCode: "254651007",
+    name: "Squamous cell carcinoma of skin",
     description:
       "The second most common type of skin cancer, arising from squamous keratinocytes.",
     category: "MALIGNANT",
@@ -101,7 +102,7 @@ export const SNOMED_CONCEPTS: readonly BundledConcept[] = [
     searchAliases: ["squamous cell carcinoma", "scc", "skin cancer"],
   },
   {
-    snomedCode: "92564006",
+    snomedCode: "201101007",
     name: "Actinic keratosis",
     description:
       "A rough, scaly patch of skin associated with long-term ultraviolet exposure.",
@@ -110,7 +111,7 @@ export const SNOMED_CONCEPTS: readonly BundledConcept[] = [
     searchAliases: ["actinic keratosis", "solar keratosis", "sun damage"],
   },
   {
-    snomedCode: "254701007",
+    snomedCode: "254818000",
     name: "Dysplastic nevus",
     description:
       "A melanocytic naevus showing architectural and cytological atypia.",
@@ -119,8 +120,8 @@ export const SNOMED_CONCEPTS: readonly BundledConcept[] = [
     searchAliases: ["dysplastic nevus", "dysplastic naevus", "atypical mole", "mole"],
   },
   {
-    snomedCode: "21119008",
-    name: "Pigmented nevus",
+    snomedCode: "400010006",
+    name: "Melanocytic naevus of skin",
     description: "A benign proliferation of melanocytes; a common mole.",
     category: "BENIGN",
     severity: "LOW",
@@ -322,7 +323,7 @@ export const ICD10_CATEGORIES: readonly Icd10Category[] = [
 const APPROX: MappingExactness = "approximate-category";
 
 export const SNOMED_TO_ICD10: Readonly<Record<string, readonly Icd10MappingRow[]>> = {
-  "372244006": [
+  "93655004": [
     {
       icd10Code: "C43",
       exactness: APPROX,
@@ -330,7 +331,7 @@ export const SNOMED_TO_ICD10: Readonly<Record<string, readonly Icd10MappingRow[]
         "Primary malignant melanoma of skin. Category level; ICD-10 subdivides C43 by anatomical site.",
     },
   ],
-  "109264001": [
+  "109266006": [
     {
       icd10Code: "D03",
       exactness: APPROX,
@@ -338,7 +339,7 @@ export const SNOMED_TO_ICD10: Readonly<Record<string, readonly Icd10MappingRow[]
         "Melanoma confined to the epidermis is classified as melanoma in situ rather than under C43.",
     },
   ],
-  "254651007": [
+  "254701007": [
     {
       icd10Code: "C44",
       exactness: APPROX,
@@ -346,7 +347,7 @@ export const SNOMED_TO_ICD10: Readonly<Record<string, readonly Icd10MappingRow[]
         "Basal cell carcinoma has no dedicated ICD-10 category; it is classified with other malignant skin neoplasms.",
     },
   ],
-  "254652000": [
+  "254651007": [
     {
       icd10Code: "C44",
       exactness: APPROX,
@@ -360,7 +361,7 @@ export const SNOMED_TO_ICD10: Readonly<Record<string, readonly Icd10MappingRow[]
         "Where the lesion is in situ (Bowen's disease), ICD-10 classifies it as carcinoma in situ of skin instead. The SNOMED concept alone does not distinguish the two.",
     },
   ],
-  "92564006": [
+  "201101007": [
     {
       icd10Code: "L57.0",
       exactness: APPROX,
@@ -368,7 +369,7 @@ export const SNOMED_TO_ICD10: Readonly<Record<string, readonly Icd10MappingRow[]
         "ICD-10 places actinic keratosis with skin changes due to chronic non-ionising radiation exposure, in Chapter XII rather than with neoplasms.",
     },
   ],
-  "254701007": [
+  "254818000": [
     {
       icd10Code: "D22",
       exactness: APPROX,
@@ -382,7 +383,7 @@ export const SNOMED_TO_ICD10: Readonly<Record<string, readonly Icd10MappingRow[]
         "Some coding practice places atypical melanocytic lesions under neoplasm of uncertain behaviour. Both targets are in use, which is why this mapping is not one-to-one.",
     },
   ],
-  "21119008": [
+  "400010006": [
     {
       icd10Code: "D22",
       exactness: APPROX,

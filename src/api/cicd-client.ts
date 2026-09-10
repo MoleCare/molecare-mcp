@@ -11,6 +11,7 @@
 
 import axios, { AxiosInstance } from "axios";
 
+import { describeError } from "../utils/safe-error.js";
 export interface CICDConfig {
   githubToken?: string;
   githubOwner?: string;
@@ -172,7 +173,7 @@ export class CICDClient {
 
       return response.data.workflow_runs.map(this.mapWorkflowRun);
     } catch (error) {
-      console.error("GitHub API error:", error);
+      console.error("GitHub API error:", describeError(error));
       return this.getMockWorkflowRuns().slice(0, limit);
     }
   }
@@ -200,7 +201,7 @@ export class CICDClient {
       run.jobs = jobsResponse.data.jobs.map(this.mapWorkflowJob);
       return run;
     } catch (error) {
-      console.error("GitHub API error:", error);
+      console.error("GitHub API error:", describeError(error));
       return null;
     }
   }
@@ -260,7 +261,7 @@ export class CICDClient {
       });
       return response.data.runs;
     } catch (error) {
-      console.error("Metaflow API error:", error);
+      console.error("Metaflow API error:", describeError(error));
       return this.getMockMetaflowRuns().slice(0, limit);
     }
   }
@@ -277,7 +278,7 @@ export class CICDClient {
       const response = await this.metaflowClient!.get(`/api/runs/${runId}`);
       return response.data;
     } catch (error) {
-      console.error("Metaflow API error:", error);
+      console.error("Metaflow API error:", describeError(error));
       return null;
     }
   }
@@ -348,7 +349,7 @@ export class CICDClient {
 
       return response.data.map(this.mapRelease);
     } catch (error) {
-      console.error("GitHub API error:", error);
+      console.error("GitHub API error:", describeError(error));
       return this.getMockReleases().slice(0, limit);
     }
   }
