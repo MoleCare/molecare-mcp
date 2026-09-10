@@ -41,6 +41,7 @@ import { performHealthCheck, formatUptime } from "./utils/health.js";
 import { registerTools, startServer, type ToolContext } from "./runtime.js";
 import { MlflowTools } from "./tools/mlflow.js";
 
+import { describeFatal } from "./utils/safe-error.js";
 // The ops server also probes the MoleCare backend as part of get_system_health
 const apiClient = new MoleCareApiClient({
   baseUrl: process.env.MOLECARE_API_URL || "http://localhost:8080/api",
@@ -1934,6 +1935,6 @@ async function getDevOpsResource(uri: string): Promise<any | null> {
 // =============================================================================
 
 startServer(server, "MoleCare Ops MCP Server").catch((error) => {
-  console.error("Fatal error:", error);
+  console.error("Fatal error:", describeFatal(error));
   process.exit(1);
 });

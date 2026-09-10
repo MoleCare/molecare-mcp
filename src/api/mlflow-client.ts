@@ -11,6 +11,7 @@
 
 import axios, { AxiosInstance } from "axios";
 
+import { describeError } from "../utils/safe-error.js";
 export interface MLflowConfig {
   baseUrl: string;
   apiKey?: string;
@@ -102,7 +103,7 @@ export class MLflowApiClient {
       const response = await this.client.get("/api/2.0/mlflow/experiments/list");
       return response.data.experiments || [];
     } catch (error) {
-      console.error("MLflow API error, using mock data:", error);
+      console.error("MLflow API error, using mock data:", describeError(error));
       return this.getMockExperiments();
     }
   }
@@ -122,7 +123,7 @@ export class MLflowApiClient {
       });
       return response.data.experiment;
     } catch (error) {
-      console.error("MLflow API error:", error);
+      console.error("MLflow API error:", describeError(error));
       return null;
     }
   }
@@ -148,7 +149,7 @@ export class MLflowApiClient {
       });
       return response.data.runs || [];
     } catch (error) {
-      console.error("MLflow API error, using mock data:", error);
+      console.error("MLflow API error, using mock data:", describeError(error));
       return this.getMockRuns(experimentIds[0]);
     }
   }
@@ -168,7 +169,7 @@ export class MLflowApiClient {
       });
       return response.data.run;
     } catch (error) {
-      console.error("MLflow API error:", error);
+      console.error("MLflow API error:", describeError(error));
       return null;
     }
   }
@@ -190,7 +191,7 @@ export class MLflowApiClient {
       );
       return response.data.metrics || [];
     } catch (error) {
-      console.error("MLflow API error:", error);
+      console.error("MLflow API error:", describeError(error));
       return this.getMockMetricHistory(metricKey);
     }
   }
@@ -209,7 +210,7 @@ export class MLflowApiClient {
       );
       return response.data.registered_models || [];
     } catch (error) {
-      console.error("MLflow API error, using mock data:", error);
+      console.error("MLflow API error, using mock data:", describeError(error));
       return this.getMockRegisteredModels();
     }
   }
@@ -232,7 +233,7 @@ export class MLflowApiClient {
       );
       return response.data.registered_model;
     } catch (error) {
-      console.error("MLflow API error:", error);
+      console.error("MLflow API error:", describeError(error));
       return null;
     }
   }
@@ -261,7 +262,7 @@ export class MLflowApiClient {
       );
       return response.data.model_version;
     } catch (error) {
-      console.error("MLflow API error:", error);
+      console.error("MLflow API error:", describeError(error));
       return null;
     }
   }
