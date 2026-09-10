@@ -22,6 +22,14 @@ import {
   TERMINOLOGY_PROVENANCE,
   type MappingExactness,
 } from "../resources/terminology-provenance.js";
+import {
+  conceptsByCategory,
+  findConcept,
+  findIcd10,
+  icd10MappingsFor,
+  searchConcepts as searchBundledConcepts,
+  type BundledConcept,
+} from "../resources/terminology-data.js";
 
 interface OntologyApiConfig {
   baseUrl: string;
@@ -293,129 +301,83 @@ export class OntologyApiClient {
   }
 
   // ==========================================================================
-  // MOCK DATA - For development/testing
+  // BUNDLED DATA - answers every request when the backend is unreachable
+  //
+  // All of it comes from `src/resources/terminology-data.ts`, so a concept
+  // advertised by a `molecare://ontology/*` resource always resolves here too.
   // Provenance: see TERMINOLOGY_PROVENANCE in terminology-provenance.ts
   // ==========================================================================
 
-  /**
-   * The bundled SNOMED CT concepts, in one table. Lookup, search, category,
-   * progression and the malignant list are all derived from it, so a concept
-   * cannot be handed out by one path and unknown to another. That is how
-   * melanoma in situ came to be MALIGNANT in the resource and reachable
-   * through progression, yet absent from lookup and the malignant list.
-   * Names are checked against SNOMED CT by tests/terminology.test.mjs.
-   */
-  private static readonly MOCK_CONCEPTS: Record<string, Concept> = {
-    "93655004": {
-      snomedCode: "93655004",
-      name: "Malignant melanoma of skin",
-      description: "The most serious type of skin cancer that develops from pigment-producing cells",
-      category: "MALIGNANT",
-      severity: "HIGH",
-    },
-    "109266006": {
-      snomedCode: "109266006",
-      name: "Melanoma in situ of skin",
-      description: "Early melanoma confined to the epidermis",
-      category: "MALIGNANT",
-      severity: "MODERATE",
-    },
-    "254701007": {
-      snomedCode: "254701007",
-      name: "Basal cell carcinoma of skin",
-      description: "Most common type of skin cancer",
-      category: "MALIGNANT",
-      severity: "MODERATE",
-    },
-    "254651007": {
-      snomedCode: "254651007",
-      name: "Squamous cell carcinoma of skin",
-      description: "Second most common type of skin cancer",
-      category: "MALIGNANT",
-      severity: "MODERATE",
-    },
-    "254818000": {
-      snomedCode: "254818000",
-      name: "Dysplastic nevus",
-      description: "Atypical mole with some concerning features",
-      category: "PRECANCEROUS",
-      severity: "MODERATE",
-    },
-    "201101007": {
-      snomedCode: "201101007",
-      name: "Actinic keratosis",
-      description: "Pre-cancerous scaly patch from sun damage",
-      category: "PRECANCEROUS",
-      severity: "MODERATE",
-    },
-    "400010006": {
-      snomedCode: "400010006",
-      name: "Melanocytic naevus of skin",
-      description: "A benign growth of melanocytes (pigment cells)",
-      category: "BENIGN",
-      severity: "LOW",
-    },
-  };
+  /** Shape a bundled concept as the wire `Concept`, including its ICD-10 targets. */
+  private toConcept(concept: BundledConcept): Concept {
+    const icd10Codes = icd10MappingsFor(concept.snomedCode).map(
+      (row) => row.icd10Code
+    );
+    return {
+      snomedCode: concept.snomedCode,
+      name: concept.name,
+      description: concept.description,
+      category: concept.category,
+      severity: concept.severity,
+      ...(icd10Codes.length ? { icd10Codes } : {}),
+    };
+  }
 
   private getMockConcept(snomedCode: string): Concept | null {
-    return OntologyApiClient.MOCK_CONCEPTS[snomedCode] || null;
+    const concept = findConcept(snomedCode);
+    return concept ? this.toConcept(concept) : null;
   }
 
   private getMockSearchResults(query: string): Concept[] {
-    const lowerQuery = query.toLowerCase();
-    return Object.values(OntologyApiClient.MOCK_CONCEPTS).filter(
-      (c) =>
-        c.name.toLowerCase().includes(lowerQuery) ||
-        c.description.toLowerCase().includes(lowerQuery)
-    );
+    return searchBundledConcepts(query).map((c) => this.toConcept(c));
   }
 
   private getMockConceptsByCategory(category: string): Concept[] {
-    return Object.values(OntologyApiClient.MOCK_CONCEPTS).filter((c) => c.category === category);
+    return conceptsByCategory(category).map((c) => this.toConcept(c));
   }
 
   private getMockProgressions(snomedCode: string): Progression[] {
-    if (snomedCode === "254818000") {
-      const fromCondition = this.getMockConcept("254818000");
-      const toCondition = this.getMockConcept("109266006");
-      if (!fromCondition || !toCondition) return [];
-      return [{ fromCondition, toCondition, likelihood: "POSSIBLE", timeframe: "MONTHS_TO_YEARS" }];
-    }
-    return [];
+    const paths = BUNDLED_PROGRESSIONS[snomedCode.trim()] ?? [];
+    return paths.flatMap(({ to, likelihood, timeframe }) => {
+      const from = findConcept(snomedCode);
+      const target = findConcept(to);
+      if (!from || !target) return [];
+      return [
+        {
+          fromCondition: this.toConcept(from),
+          toCondition: this.toConcept(target),
+          likelihood,
+          timeframe,
+        },
+      ];
+    });
   }
 
   private getMockIcd10Mappings(snomedCode: string): Diagnosis[] {
-    // Category-level WHO ICD-10 mappings (see TERMINOLOGY_PROVENANCE.snomedToIcd10).
-    const approx = TERMINOLOGY_PROVENANCE.snomedToIcd10.exactness;
     const source =
       `${TERMINOLOGY_PROVENANCE.snomedCt.edition}; ` +
       `${TERMINOLOGY_PROVENANCE.icd10.revision}; ` +
       `last checked ${TERMINOLOGY_PROVENANCE.snomedCt.lastChecked}`;
-    const mappings: Record<string, Diagnosis[]> = {
-      "93655004": [
+
+    return icd10MappingsFor(snomedCode).flatMap((row) => {
+      const category = findIcd10(row.icd10Code);
+      if (!category) return [];
+      return [
         {
-          icd10Code: "C43",
-          name: "Malignant melanoma of skin",
-          description: "Primary malignant melanoma (category-level; not site-specific)",
-          category: "Neoplasms",
-          chapter: "Chapter II",
-          mappingExactness: approx,
+          icd10Code: category.code,
+          name: category.name,
+          description: row.rationale,
+          category: category.group,
+          chapter: category.chapter,
+          mappingExactness: row.exactness,
           source,
         },
-      ],
-      "400010006": [
-        {
-          icd10Code: "D22",
-          name: "Melanocytic naevi",
-          description: "Benign melanocytic lesions (category-level)",
-          category: "Neoplasms",
-          chapter: "Chapter II",
-          mappingExactness: approx,
-          source,
-        },
-      ],
-    };
-    return mappings[snomedCode] || [];
+      ];
+    });
+  }
+
+  private getMockMalignantConditions(): Concept[] {
+    return this.getMockConceptsByCategory("MALIGNANT");
   }
 
   private getMockRiskFactors(): RiskFactor[] {
@@ -547,8 +509,24 @@ export class OntologyApiClient {
   ): EducationalClassification {
     return educationalClassification(features);
   }
-
-  private getMockMalignantConditions(): Concept[] {
-    return this.getMockConceptsByCategory("MALIGNANT");
-  }
 }
+
+/**
+ * Progression paths between bundled concepts, keyed by source concept.
+ * Educational only: progression is not inevitable, and these describe
+ * recognised sequences rather than a prediction about any individual lesion.
+ */
+const BUNDLED_PROGRESSIONS: Record<
+  string,
+  ReadonlyArray<{ to: string; likelihood: string; timeframe: string }>
+> = {
+  "254818000": [
+    { to: "109266006", likelihood: "POSSIBLE", timeframe: "MONTHS_TO_YEARS" },
+  ],
+  "109266006": [
+    { to: "93655004", likelihood: "POSSIBLE", timeframe: "MONTHS_TO_YEARS" },
+  ],
+  "201101007": [
+    { to: "254651007", likelihood: "POSSIBLE", timeframe: "YEARS" },
+  ],
+};

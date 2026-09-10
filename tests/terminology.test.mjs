@@ -108,10 +108,19 @@ function shippedCodes(file) {
 }
 
 test("every shipped SNOMED code is a valid identifier and names the right concept", () => {
-  const seen = [...shippedCodes("api/ontology-client.js"), ...shippedCodes("server.js")];
+  // The table lives in terminology-data.js; the other two are scanned so a
+  // stray literal cannot creep back into them.
+  const seen = [
+    ...shippedCodes("resources/terminology-data.js"),
+    ...shippedCodes("api/ontology-client.js"),
+    ...shippedCodes("server.js"),
+  ];
   const distinct = new Set(seen.map((s) => s.code));
   assert.ok(distinct.size >= 7, `expected at least 7 distinct codes, found ${distinct.size}`);
-  assert.ok(seen.length > distinct.size, "expected codes to appear more than once; the scan looks broken");
+  assert.ok(
+    shippedCodes("resources/terminology-data.js").length >= 7,
+    "the terminology table was not scanned; the scan looks broken",
+  );
 
   for (const { file, code, label } of seen) {
     // ICD-10 entries in the same files are letters+digits and never match \d{6,}.
@@ -224,7 +233,8 @@ test("melanoma in situ is not filed as precancerous anywhere", async () => {
   // It is stage-0 melanoma. The server's own ICD-10 resource files it under D03
   // in chapter II, Neoplasms; the concept table said PRECANCEROUS. One server,
   // one entity, one category.
-  const text = readFileSync(join(ROOT, "dist", "api", "ontology-client.js"), "utf8")
+  const text = readFileSync(join(ROOT, "dist", "resources", "terminology-data.js"), "utf8")
+    + readFileSync(join(ROOT, "dist", "api", "ontology-client.js"), "utf8")
     + readFileSync(join(ROOT, "dist", "server.js"), "utf8");
   const bad = /name:\s*"Melanoma in situ[^"]*"[\s\S]{0,200}?category:\s*"PRECANCEROUS"/.test(text);
   assert.ok(!bad, "melanoma in situ is labelled PRECANCEROUS again");

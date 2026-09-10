@@ -134,7 +134,29 @@ base and need no API, no key, and no network.
 
 **Resources:** `molecare://knowledge/*` — ABCDE criteria, Fitzpatrick skin types,
 prevention, when to see a dermatologist. `molecare://ontology/*` — SNOMED CT and
-ICD-10 reference lists with provenance metadata.
+ICD-10 reference lists, the full `snomed-icd10-map` mapping table, and risk
+factors, all with provenance metadata.
+
+### What the terminology actually covers
+
+| | Bundled |
+|---|---|
+| SNOMED CT concepts | **7** — melanoma, melanoma in situ, BCC, SCC, actinic keratosis, dysplastic naevus, melanocytic naevus |
+| WHO ICD-10 categories | **25** — malignant, in situ, benign, precancerous, inflammatory and pigmentation, across Chapters II and XII |
+| SNOMED → ICD-10 mappings | **9 rows covering all 7 concepts** — some concepts have more than one plausible target |
+
+Every SNOMED concept the server advertises resolves through
+`lookup_medical_concept` and maps through `map_snomed_to_icd10`. Ask for a code
+outside the subset and the response carries a `coverage` block listing what *is*
+bundled, rather than an empty result. Browse the whole table with the
+`molecare://ontology/snomed-icd10-map` resource.
+
+ICD-10 coverage is deliberately broader than SNOMED coverage. Expanding the
+bundled **SNOMED** concept set is on hold pending a redistribution question with
+SNOMED International: free *use* in a member country is not the same as free
+*redistribution* via npm to non-member territories
+([#49](https://github.com/MoleCare/molecare-mcp/issues/49)). WHO licenses ICD-10
+more permissively at this level, so that side can grow in the meantime.
 
 ### Terminology provenance
 
@@ -145,12 +167,15 @@ and are returned on `map_snomed_to_icd10` and the ontology resources:
 
 | System | What this package reflects |
 |--------|----------------------------|
-| **SNOMED CT** | International Edition concept IDs / FSNs checked against the [SNOMED International browser](https://browser.ihtsdotools.org/) (last checked 2026-09-03) |
-| **ICD-10** | WHO ICD-10 **three-character category** codes (e.g. `C43`, `D22`), not ICD-10-CM site-specific codes |
-| **SNOMED → ICD-10** | **Approximate category-level** mappings — not certified one-to-one map rows |
+| **SNOMED CT** | International Edition concept IDs / FSNs checked against the [SNOMED International browser](https://browser.ihtsdotools.org/) (last checked 2026-09-03). Plain-English search aliases are written for this package and are not SNOMED descriptions |
+| **ICD-10** | WHO ICD-10 **category-level** codes (e.g. `C43`, `D22`), with four-character subcategories only where the category alone would mislead (`L57.0`, `D18.0`). Not ICD-10-CM — codes such as `C4A` are deliberately absent |
+| **SNOMED → ICD-10** | **Approximate category-level** mappings — not certified one-to-one map rows. Each row carries a rationale |
 
-Mock concept and mapping rows live in `src/api/ontology-client.ts`. Educational
-prose without clinical codes lives in `src/resources/medical-kb.ts`.
+The dataset itself lives in
+[`src/resources/terminology-data.ts`](./src/resources/terminology-data.ts) and is
+the single source for both the `src/api/ontology-client.ts` mock paths and the
+ontology resources. Educational prose without clinical codes lives in
+`src/resources/medical-kb.ts`.
 
 ### MoleCare product data — needs an API
 

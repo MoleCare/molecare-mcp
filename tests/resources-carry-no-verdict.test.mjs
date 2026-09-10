@@ -31,7 +31,7 @@ const VERDICT_FIELDS =
   /"(relativeRisk|combinedRelativeRisk|overallRiskLevel|riskScore|matchScore|possibleConditions|elevatedRiskConditions|urgency|probability|confidence)"\s*:|"riskLevel"\s*:\s*"(HIGH|MODERATE|LOW|CRITICAL)"/;
 
 /** The resources this server lists. Kept in step with tests/mock-mode-smoke.mjs. */
-const EXPECTED_RESOURCE_COUNT = 7;
+const EXPECTED_RESOURCE_COUNT = 8;
 
 const scrubbedEnv = {
   MOLECARE_API_URL: "http://127.0.0.1:9/api",
