@@ -1,45 +1,71 @@
 name: Contributors
 
-# Fills the README markers from the GitHub contributors API (commit order, bots
-# omitted). Names and counts are never hardcoded — a stale hand-written list is
-# worse than none.
+# Keeps the README contributors wall in step with the GitHub contributors API
+# (commit order, bots omitted). Names are never hand-maintained, because a
+# stale list is worse than none.
 #
-# Does not open a pull request. A protected default branch refuses both a
-# GITHUB_TOKEN push and "Actions may create pull requests", so this writes only
-# on a same-repo pull request branch, or on workflow_dispatch of a
-# non-default branch.
+# It runs after every push to main and commits the refreshed wall straight
+# back to main — no separate pull request. That is the only place it can run
+# and be right. The earlier version ran on pull requests and pushed the wall to
+# the PR branch, which had two holes that both showed up on one afternoon:
 #
-# No `push` trigger on purpose. With both push and pull_request the two runs
-# share a concurrency group, so one cancels the other and every pull request is
-# left showing a cancelled check that reads like a failure.
+#   - Fork pull requests skipped the job, because it cannot push to a fork. So
+#     the people the wall exists to thank were never added by their own PR.
+#   - A same-repo PR carried the wall as it was when its branch last ran. Merge
+#     a fork PR in between, and the later merge overwrote main with a wall
+#     missing the fork contributor. #76 and #85 merged 44 seconds apart and did
+#     exactly that, and re-running the job on main reported success while
+#     throwing its result away.
+#
+# A run on main after the merge sees every commit, so neither can happen.
+#
+# Writing to main goes through a deploy key, CONTRIBUTORS_DEPLOY_KEY, which is
+# the one bypass actor on the main ruleset besides the owner. GitHub will not
+# accept its own Actions app as a bypass actor on this org's ruleset, and a
+# personal token is not an option, so a write key scoped to this repository is
+# the narrowest thing that works. It is the only deploy key on the repo.
+#
+# A push made with a deploy key does start workflows, unlike one made with
+# GITHUB_TOKEN, so the commit carries [skip ci]: neither CI nor this job runs
+# again for a README-only change.
+#
+# The contributors API is cached and can lag a fresh commit, so a daily run
+# catches anything the post-merge run saw too early.
 
 on:
-  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 6 * * *"
   workflow_dispatch:
 
+# The push uses the deploy key, so the token only needs to read: the action
+# calls the contributors API with it.
 permissions:
-  contents: write
+  contents: read
 
+# Every run recomputes the wall from scratch, so the newest one can safely
+# replace an older one still in flight.
 concurrency:
-  group: contributors-${{ github.head_ref || github.ref_name }}
+  group: contributors
   cancel-in-progress: true
 
 jobs:
   readme:
-    # Skip PRs from forks entirely. `github.head_ref` names a branch in the
-    # fork, not in this repository, so actions/checkout cannot resolve it and
-    # the job fails before reaching anything the contributor wrote — showing a
-    # red X on their PR that has nothing to do with their change. The job also
-    # could not push to a fork even if checkout succeeded.
-    if: >-
-      github.actor != 'github-actions[bot]'
-      && (github.event_name != 'pull_request'
-          || github.event.pull_request.head.repo.full_name == github.repository)
+    # Belt and braces: [skip ci] already stops the bot's own commit from
+    # starting another run.
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
+      # Always main, whatever the run was started from, so a manual run from
+      # any branch repairs main rather than a side branch. Named, not read
+      # from github.event.repository: a scheduled run's payload has no
+      # repository, so that expression is empty at 06:17 every day.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+          ref: main
+          ssh-key: ${{ secrets.CONTRIBUTORS_DEPLOY_KEY }}
           persist-credentials: true
 
       - name: Fill README contributors
@@ -48,15 +74,35 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           format: html
 
-      - name: Push the list on a writable branch
-        if: >-
-          github.event.repository.default_branch != (github.head_ref || github.ref_name)
-          && (github.event_name != 'pull_request'
-              || github.event.pull_request.head.repo.full_name == github.repository)
+      - name: Commit the wall to main
+        env:
+          BRANCH: main
         run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add README.md .github/contributors.svg .github/faces
-          git diff --cached --quiet && exit 0
-          git commit -m "docs: refresh README contributors"
-          git push
+          if git diff --cached --quiet; then
+            echo "The wall already matches the contributors API."
+            exit 0
+          fi
+
+          # Name who was added, so the history says why the commit exists.
+          added=$(git diff --cached --name-only --diff-filter=A -- .github/faces \
+            | sed 's#.*/##; s#\.svg$##' | paste -sd, - | sed 's/,/, /g')
+          git commit -m "docs: refresh README contributors${added:+ (adds $added)} [skip ci]"
+
+          # main can move while this runs. The commit only touches the wall,
+          # which was just recomputed, so replaying it on the new tip is safe.
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$BRANCH"; then
+              echo "Wall updated on $BRANCH${added:+: added $added}."
+              exit 0
+            fi
+            if ! git pull --rebase origin "$BRANCH"; then
+              git rebase --abort || true
+              echo "::error::main changed the wall's files while this ran, and the rebase conflicted. The next run will recompute it."
+              exit 1
+            fi
+          done
+          echo "::error::Could not push the refreshed wall to $BRANCH. Check that CONTRIBUTORS_DEPLOY_KEY is set, is a write deploy key, and that deploy keys can bypass the $BRANCH ruleset."
+          exit 1
