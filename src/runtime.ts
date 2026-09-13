@@ -21,6 +21,7 @@ import { z } from "zod";
 import { rateLimitService } from "./services/rate-limit-service.js";
 import { validateInput, TOOL_SCHEMAS } from "./utils/validation.js";
 import { logger, createTimer } from "./utils/logger.js";
+import { checkResult, gateConfig, isChecked, textOfResult } from "./privacy-gate.js";
 
 /** A tool handler returns an MCP tool result. */
 export interface ToolContext {
@@ -86,6 +87,8 @@ export function validatorsFor(tools: AdvertisedTool[]): Map<string, z.ZodType> {
  * Wire up ListTools and CallTool for a server, applying validation and
  * rate limiting before delegating to `dispatch`.
  */
+const gate = gateConfig();
+
 export function registerTools(
   server: Server,
   tools: AdvertisedTool[],
@@ -141,7 +144,33 @@ export function registerTools(
     }
 
     try {
-      return await dispatch(name, args as Record<string, any>, { userId, timer });
+      const result = await dispatch(name, args as Record<string, any>, { userId, timer });
+
+      // Egress check. A tool result is returned to the client and lands in the
+      // model's context, so a result carrying a real person's clinical
+      // narrative has left this machine. Off unless PRIVACY_GATE_URL is set.
+      if (gate.url && isChecked(name)) {
+        const verdict = await checkResult(textOfResult(result), gate);
+        if (verdict.hold) {
+          // The score, never the text: the text is the thing being withheld.
+          logger.warn("Privacy gate held a tool result", {
+            tool: name,
+            score: verdict.score,
+            unavailable: verdict.unavailable,
+          });
+          return errorResult(
+            "PRIVACY_HOLD",
+            verdict.unavailable
+              ? "The privacy gate could not be reached, so this result is withheld. " +
+                "Query the API directly rather than through an assistant."
+              : "This result contains data that must not leave the machine. " +
+                "Query the API directly rather than through an assistant.",
+            name,
+          );
+        }
+      }
+
+      return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
