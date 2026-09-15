@@ -24,6 +24,8 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import {
   ListResourcesRequestSchema,
   ReadResourceRequestSchema,
+  ListPromptsRequestSchema,
+  GetPromptRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { MoleCareApiClient } from "./api/molecare-client.js";
@@ -50,6 +52,7 @@ import {
   terminologyCoverage,
 } from "./resources/terminology-data.js";
 import { EDUCATIONAL_RISK_NOTE } from "./clinical-boundary.js";
+import { MEDICAL_PROMPTS, renderMedicalPrompt } from "./prompts.js";
 
 // Utilities
 import { cache, CACHE_TTL } from "./utils/cache.js";
@@ -90,6 +93,7 @@ const server = new Server(
     capabilities: {
       tools: {},
       resources: {},
+      prompts: {},
     },
   }
 );
@@ -226,6 +230,27 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
         text: JSON.stringify(content, null, 2),
       },
     ],
+  };
+});
+
+// =============================================================================
+// PROMPTS - Safe, reusable educational workflows for MCP clients
+// =============================================================================
+
+server.setRequestHandler(ListPromptsRequestSchema, async () => ({
+  prompts: MEDICAL_PROMPTS,
+}));
+
+server.setRequestHandler(GetPromptRequestSchema, async (request) => {
+  const name = request.params.name;
+  const args = Object.fromEntries(
+    Object.entries(request.params.arguments ?? {}).map(([key, value]) => [key, String(value)]),
+  );
+  const prompt = renderMedicalPrompt(name, args);
+  if (!prompt) throw new Error(`Prompt not found or missing required arguments: ${name}`);
+  return {
+    description: prompt.description,
+    messages: [{ role: "user", content: { type: "text", text: prompt.text } }],
   };
 });
 

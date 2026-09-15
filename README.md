@@ -137,6 +137,15 @@ prevention, when to see a dermatologist. `molecare://ontology/*` — SNOMED CT a
 ICD-10 reference lists, the full `snomed-icd10-map` mapping table, and risk
 factors, all with provenance metadata.
 
+### Educational prompts
+
+The server also exposes three reusable MCP prompts: `walk_through_abcde`,
+`prepare_dermatology_appointment`, and `explain_snomed_code`. They help a client
+organize observations or explain terminology without diagnosing a condition,
+assigning urgency, or producing a risk score. Every rendered prompt includes
+the non-diagnostic educational disclaimer; the terminology prompt requires a
+SNOMED CT code argument.
+
 ### What the terminology actually covers
 
 | | Bundled |
