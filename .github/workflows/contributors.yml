@@ -69,7 +69,7 @@ jobs:
           persist-credentials: true
 
       - name: Fill README contributors
-        uses: YauhenBichel/readme-contributors@25e0b067b5edec34206283138657dc8a8713d89a # reuse captions
+        uses: YauhenBichel/readme-contributors@a989ec12436495f0a5fc4bd3947bfe4edcf11939 # reuse captions
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           format: html
