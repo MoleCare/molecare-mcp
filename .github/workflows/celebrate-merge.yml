@@ -9,7 +9,7 @@ jobs:
     if: github.event.pull_request.merged && github.event.pull_request.user.type != 'Bot'
     runs-on: ubuntu-latest
     steps:
-      - uses: YauhenBichel/merge-cheer@v1.8.0
+      - uses: YauhenBichel/merge-cheer@b3d5ac37b98c7dc82063f4771cf7db3da72f4a77 # v1.8.0
         with:
           model: gpt-4o-mini
           model-api-key: ${{ secrets.OPENAI_API_KEY }}
