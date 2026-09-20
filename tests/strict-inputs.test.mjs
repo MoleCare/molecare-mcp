@@ -125,11 +125,13 @@ test("a misspelt feature is an error, not an empty feature set", async () => {
       "classify_lesion_features",
       /asymetry/,
     );
-    // Nothing at all is not a lesion description either.
+    // Nothing at all is not a lesion description either. Which layer refuses it depends on
+    // the zod version: from 4.6.0 the schema's own minProperties rejects it before our
+    // refine() runs, so accept either wording. What matters is that it is refused.
     expectValidationError(
       await call(client, "classify_lesion_features", {}),
       "classify_lesion_features",
-      /at least one feature/,
+      /at least one feature|expected object to have >=\s*1 propert/i,
     );
     // Out of range is out of range.
     expectValidationError(
