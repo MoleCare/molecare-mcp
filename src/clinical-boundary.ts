@@ -6,6 +6,10 @@
 export const EDUCATIONAL_ONLY_NOTE =
   "The ABCDE criteria describe asymmetry, border, colour, diameter, and evolution. A clinician interprets what you notice. Educational only — not a diagnosis.";
 
+/** For anything that is not about ABCDE: the same boundary, without the mole criteria. */
+export const EDUCATIONAL_GENERAL_NOTE =
+  "A clinician interprets what you notice. Educational only — not a diagnosis.";
+
 export const EDUCATIONAL_RISK_NOTE =
   "These are named educational factors. Having one or more does not mean you will develop a condition. This is not a risk score or a diagnosis.";
 
