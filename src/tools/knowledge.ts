@@ -223,8 +223,7 @@ export async function dispatchKnowledgeTool(
               {
                 query: args.query,
                 results,
-                disclaimer:
-                  "This information is for educational purposes only and does not constitute medical advice. Please consult a healthcare professional for medical concerns.",
+                disclaimer: medicalKB.getDisclaimer("educationalOnlyPleaseConsult"),
               },
               null,
               2

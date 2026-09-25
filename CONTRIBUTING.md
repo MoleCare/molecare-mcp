@@ -50,6 +50,41 @@ Inspect the tool surface interactively:
 npm run inspect
 ```
 
+## Translations / i18n
+
+The English source of truth for the educational knowledge base is
+`locales/en/medical-kb.json`. A translation belongs at
+`locales/<language-tag>/medical-kb.json`, using a short BCP 47 language tag such
+as `es`, `fr`, or `pt-BR` for the directory name.
+
+To add a language:
+
+1. Copy the complete English file into the new locale directory.
+2. Translate user-facing values, including `keywords`, resource `name` and
+   `description` fields, and every value in `disclaimers`.
+3. Keep JSON keys, resource URIs, `disclaimerKey` values, ABCDE letters, and
+   numeric values unchanged. Do not add medical claims or turn educational
+   wording into diagnosis or triage advice.
+4. Run `npm test`. The locale tests compare every shipped file with the required
+   English structure and report the exact path of a missing or malformed value.
+5. In the pull request, say whether the translation is from a native speaker,
+   professionally translated, or machine-assisted, and identify who reviewed
+   the medical wording.
+
+Clinical-safety disclaimers are not ordinary copy. A maintainer must review and
+approve every disclaimer translation. A translation that weakens “educational
+only”, “not medical advice”, or equivalent non-diagnostic meaning will not be
+accepted. Resources reference the canonical strings through `disclaimerKey`;
+do not replace those references with ad-hoc wording.
+
+English remains the runtime default while locale negotiation is being designed.
+See the [open i18n issues](https://github.com/MoleCare/molecare-mcp/labels/i18n),
+the [community translation issue](https://github.com/MoleCare/molecare-mcp/issues/22)
+for current work and suggested starter languages (Spanish, Portuguese, French,
+German, and Arabic), and the
+[locale selection issue](https://github.com/MoleCare/molecare-mcp/issues/21)
+before wiring a translation into tool or resource requests.
+
 ## Adding terminology
 
 All bundled SNOMED CT concepts, ICD-10 categories and mappings live in one file:

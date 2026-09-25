@@ -18,6 +18,7 @@ RUN npm ci
 
 # Copy source code
 COPY src/ ./src/
+COPY locales/ ./locales/
 
 # Build TypeScript
 RUN npm run build
@@ -37,6 +38,7 @@ RUN npm ci --only=production && npm cache clean --force
 
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/locales ./locales
 
 # Set ownership
 RUN chown -R nodejs:nodejs /app

@@ -34,6 +34,7 @@
   },
   "files": [
     "dist",
+    "locales",
     "README.md",
     "LICENSE",
     ".env.example"

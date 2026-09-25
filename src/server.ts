@@ -143,30 +143,7 @@ registerTools(server, TOOLS, TOOL_COSTS, dispatch);
 
 server.setRequestHandler(ListResourcesRequestSchema, async () => ({
   resources: [
-    {
-      uri: "molecare://knowledge/abcde-criteria",
-      name: "ABCDE Criteria for Melanoma",
-      description: "The ABCDE rule for identifying potentially cancerous moles",
-      mimeType: "application/json",
-    },
-    {
-      uri: "molecare://knowledge/skin-types",
-      name: "Fitzpatrick Skin Types",
-      description: "Classification of skin types and associated risks",
-      mimeType: "application/json",
-    },
-    {
-      uri: "molecare://knowledge/prevention-tips",
-      name: "Skin Cancer Prevention",
-      description: "Tips for preventing skin cancer and protecting skin",
-      mimeType: "application/json",
-    },
-    {
-      uri: "molecare://knowledge/when-to-see-doctor",
-      name: "When to See a Dermatologist",
-      description: "Guidelines for when to seek professional medical advice",
-      mimeType: "application/json",
-    },
+    ...medicalKB.listResourceMetadata(),
     // Ontology Resources
     {
       uri: "molecare://ontology/snomed-codes",
