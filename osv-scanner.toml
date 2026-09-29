@@ -1,0 +1,14 @@
+# What the dependency gate (scripts/vulnerability-gate.sh) leaves out, and why.
+#
+# Every [[IgnoredVulns]] entry needs a reason and an ignoreUntil date. When the
+# date passes, the gate fails again and the entry must be re-justified or
+# removed. Anything that can be fixed is fixed by upgrading.
+
+# Development dependencies (typescript, tsx, @types, the AWS SDK clients used
+# by the ops scripts). npm does not install them for people who install
+# molecare-mcp, the same scope as the server's
+# gate, which scans only its runtime classpath. Dependabot still reports them.
+[[PackageOverrides]]
+group = "dev"
+ignore = true
+reason = "Development dependency: not installed for people who install molecare-mcp from npm."
