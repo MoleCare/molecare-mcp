@@ -1,0 +1,49 @@
+name: Dependency scan
+
+# Fails on a HIGH or CRITICAL advisory against a dependency installed with
+# molecare-mcp; see scripts/vulnerability-gate.sh and osv-scanner.toml. Same design
+# as molecare-server's security gate.
+#
+# On a pull request this runs only when the lockfile, the exception list or
+# the gate changed. Pushes to main and the daily schedule always run it, so a
+# new advisory against an existing dependency shows up within a day.
+
+on:
+  pull_request:
+    paths:
+      - package-lock.json
+      - osv-scanner.toml
+      - scripts/vulnerability-gate.sh
+      - .github/workflows/dependency-scan.yml
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Known-vulnerable dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install osv-scanner (pinned and checksum-verified)
+        env:
+          OSV_VERSION: v2.5.1
+          OSV_SHA256: f9f25499a2c8cc367b3af45df2ea7eeca7fbccceab9c35079968f4b3652194be
+        run: |
+          curl -fsSL -o /tmp/osv-scanner \
+            "https://github.com/google/osv-scanner/releases/download/${OSV_VERSION}/osv-scanner_linux_amd64"
+          echo "${OSV_SHA256}  /tmp/osv-scanner" | sha256sum --check
+          sudo install -m 0755 /tmp/osv-scanner /usr/local/bin/osv-scanner
+          osv-scanner --version
+
+      - name: Scan what ships
+        run: ./scripts/vulnerability-gate.sh
