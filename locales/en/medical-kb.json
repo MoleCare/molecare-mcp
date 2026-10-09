@@ -127,6 +127,17 @@
         "Sunbeds give out UV and raise the risk of skin cancer; in the UK they are not allowed for under-18s",
         "Use sunscreen on cloudy summer days too",
         "In the UK, the NHS suggests a vitamin D supplement in autumn and winter"
+      ]    },
+    "hot-weather": {
+      "term": "Hot Weather and Skin",
+      "keywords": ["heat", "heatwave", "hot weather", "hot day", "hot days", "heat rash", "prickly heat", "uv index", "high uv", "summer"],
+      "definition": "Looking after your skin on hot, sunny days",
+      "details": "On hot days the UV level is often high too. The NHS advises staying out of the sun between 11am and 3pm, finding shade, drinking plenty of water, and wearing loose, light clothing and a hat. When the UV index is 3 or more, the World Health Organization advises sun protection. Heat rash (prickly heat) is common in hot weather and usually settles on its own once the skin is kept cool; a pharmacist can help if it bothers you.",
+      "significance": "Heat, UV and air pollution increasingly arrive together. Reviews in 2025 found that children and older people are the most affected, so hot days are a good moment to check on them too.",
+      "examples": [
+        "Check the UV index as well as the temperature",
+        "Reapply sunscreen after swimming or sweating",
+        "Keep babies under 6 months out of direct sunlight"
       ]
     }
   },
