@@ -51,7 +51,7 @@ import {
   findIcd10,
   terminologyCoverage,
 } from "./resources/terminology-data.js";
-import { EDUCATIONAL_RISK_NOTE } from "./clinical-boundary.js";
+import { EDUCATIONAL_RISK_NOTE, SERVER_INSTRUCTIONS } from "./clinical-boundary.js";
 import { MEDICAL_PROMPTS, renderMedicalPrompt } from "./prompts.js";
 
 // Utilities
@@ -95,6 +95,7 @@ const server = new Server(
       resources: {},
       prompts: {},
     },
+    instructions: SERVER_INSTRUCTIONS,
   }
 );
 
