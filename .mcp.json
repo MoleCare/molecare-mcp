@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "molecare": {
+      "command": "npx",
+      "args": ["-y", "molecare-mcp"]
+    }
+  }
+}

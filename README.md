@@ -67,6 +67,20 @@ npx -y molecare-mcp
 
 It starts and waits on stdio. No output means it is working.
 
+### Claude Code plugin
+
+This repository is also a Claude Code plugin: the same server, plus a skill that
+tells Claude when to use it and to never diagnose.
+
+```bash
+claude plugin marketplace add MoleCare/molecare-mcp
+claude plugin install molecare@molecare
+```
+
+Then ask things like "what does the E in ABCDE mean?" or "help me prepare for a
+dermatology appointment". The plugin runs `npx -y molecare-mcp` with no keys, so
+the account tools return example data marked `"dataSource": "mock"`.
+
 ---
 
 ## Connecting a real backend
