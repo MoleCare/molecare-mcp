@@ -1,6 +1,6 @@
 {
   "name": "molecare-mcp",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "mcpName": "io.github.MoleCare/molecare-mcp",
   "description": "MCP server bridging the MoleCare API to any MCP client: educational dermatology knowledge (lesion terminology, ABCDE criteria, SNOMED CT to ICD-10 mapping) and mole tracking data. Runs with no credentials. Not a medical device.",
   "license": "Apache-2.0",
