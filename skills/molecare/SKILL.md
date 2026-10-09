@@ -1,6 +1,6 @@
 ---
 name: molecare
-description: Explain skin-health topics from MoleCare's bundled knowledge — the ABCDE checklist for moles, skin types, sun safety, and SNOMED CT or ICD-10 skin-condition codes — and help the user prepare questions for a doctor. Use when the user asks what the ABCDE letters mean, how to check their skin, how to protect it from the sun, what a skin-condition code means, or what to ask at a dermatology appointment. Uses the molecare MCP tools. Education only; never diagnoses.
+description: Use whenever the user describes a mole, spot or patch of their own skin, asks whether it is cancer or melanoma, asks for the odds, or is worried about a change — and also when they ask what the ABCDE letters mean, how to check their skin, sun safety, what a SNOMED CT or ICD-10 skin code means, or what to ask at a dermatology appointment. Answers from MoleCare's bundled skin-health knowledge through the molecare MCP tools. Education only; never diagnoses and never gives odds.
 ---
 
 # MoleCare: skin-health education

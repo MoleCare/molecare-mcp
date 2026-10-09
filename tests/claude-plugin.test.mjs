@@ -36,7 +36,9 @@ test("the skill says what it is for and holds the no-diagnosis line", () => {
   const front = skill.match(/^---\n([\s\S]*?)\n---\n/);
   assert.ok(front, "SKILL.md has frontmatter");
   assert.match(front[1], /^name: molecare$/m);
-  assert.match(front[1], /^description: .*Use when .*never diagnoses\.$/m);
+  // Worried people ask "is it cancer?", not "what does ABCDE mean?". In a real
+  // install the skill never fired on that question until the description said so.
+  assert.match(front[1], /^description: Use whenever the user describes a mole.*is cancer.*odds.*never gives odds\.$/m);
   assert.match(skill, /Never tell the user what a mole or a spot \*is\*/);
   assert.match(skill, /never present that as\s+the user's own moles/);
 });
