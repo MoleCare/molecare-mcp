@@ -10,6 +10,17 @@ export const EDUCATIONAL_ONLY_NOTE =
 export const EDUCATIONAL_GENERAL_NOTE =
   "A clinician interprets what you notice. Educational only — not a diagnosis.";
 
+/**
+ * Sent to every client at initialize, so the boundary reaches the model before
+ * any tool does. Short on purpose: clients put it in the model's context.
+ */
+export const SERVER_INSTRUCTIONS = [
+  "MoleCare explains skin health: the ABCDE checklist, skin types, sun safety, and SNOMED CT or ICD-10 skin-condition codes. It is not a medical device.",
+  "Never tell the user what a mole or spot is, whether it looks fine or worrying, or how likely it is to be anything. Explain what a doctor looks at, and suggest a GP or dermatologist calmly if something worries them or has changed.",
+  "search_medical_info works best with one or two key words (for example 'evolving'), not a whole question.",
+  "Account tools return example data marked \"dataSource\": \"mock\" until MOLECARE_API_URL and MOLECARE_API_KEY are set; never present it as the user's own moles.",
+].join("\n");
+
 export const EDUCATIONAL_RISK_NOTE =
   "These are named educational factors. Having one or more does not mean you will develop a condition. This is not a risk score or a diagnosis.";
 
