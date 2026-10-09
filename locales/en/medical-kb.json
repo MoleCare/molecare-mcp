@@ -85,7 +85,7 @@
       "term": "Sunscreen",
       "keywords": ["spf", "sunblock", "suncream", "sun cream", "sun protection"],
       "definition": "A product that protects skin from UV radiation damage",
-      "details": "SPF (Sun Protection Factor) indicates protection against UVB rays. Broad-spectrum sunscreens also protect against UVA rays. Apply generously 15-30 minutes before sun exposure.",
+      "details": "SPF (Sun Protection Factor) indicates protection against UVB rays. Broad-spectrum sunscreens also protect against UVA rays. Apply generously 15-30 minutes before sun exposure. Bemotrizinol (Tinosorb S), a broad-spectrum filter used in the UK and EU for years, was approved in the US in June 2026.",
       "significance": "Regular sunscreen use significantly reduces risk of skin cancer. SPF 30 or higher is recommended for extended outdoor activity.",
       "examples": [
         "SPF 30+ for daily use",
@@ -115,6 +115,18 @@
         "Wear broad-brimmed hats",
         "Use UV-protective clothing",
         "Wear sunglasses"
+      ]
+    },
+    "sun-myths": {
+      "term": "Sun Safety Myths",
+      "keywords": ["myth", "myths", "base tan", "tan", "tanning", "sunbed", "sunbeds", "tanning bed", "cloudy", "cloud", "vitamin d", "dark skin", "darker skin", "is sunscreen safe", "sunscreen safe", "sunscreen harmful"],
+      "definition": "Common beliefs about sun and skin that health bodies say are not true",
+      "details": "Myth: a base tan protects you. A tan is the skin reacting to UV damage and gives very little protection. Myth: you only need protection on sunny days. Much of the sun's UV passes through cloud. Myth: darker skin does not need sun protection. Darker skin can still burn and get skin cancer, which is often found later. Myth: sunscreen is more harmful than the sun. Sunscreens sold in the UK, EU and US are regulated and tested, and the NHS and dermatology bodies recommend them. Myth: you need to tan or burn to get vitamin D. Short, everyday time outdoors is enough for most people in summer, and burning is never needed.",
+      "significance": "Many young people meet sun-safety misinformation online. In a 2025 survey by the American Academy of Dermatology, most Gen Z respondents had seen it, and millions of adults said they had cut back on sunscreen because of online claims.",
+      "examples": [
+        "Sunbeds give out UV and raise the risk of skin cancer; in the UK they are not allowed for under-18s",
+        "Use sunscreen on cloudy summer days too",
+        "In the UK, the NHS suggests a vitamin D supplement in autumn and winter"
       ]
     }
   },
