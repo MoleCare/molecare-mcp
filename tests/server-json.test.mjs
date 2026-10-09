@@ -29,6 +29,12 @@ test("the version is the same in every place that declares one", () => {
       `server.json packages[].version is ${entry.version} but package.json is ${pkg.version}`,
     );
   }
+  // Both servers tell clients their version at initialize; 1.1.0 to 1.2.0 found
+  // them hand-written in the source, so keep them on the package version too.
+  for (const file of ["src/server.ts", "src/ops.ts"]) {
+    const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
+    assert.match(source, new RegExp(`version: "${pkg.version.replaceAll(".", "\\.")}",`), `${file} reports another version`);
+  }
 });
 
 test("the npm package name the registry verifies matches what we publish", () => {
