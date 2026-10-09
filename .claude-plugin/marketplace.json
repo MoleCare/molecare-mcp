@@ -1,0 +1,16 @@
+{
+  "name": "molecare",
+  "description": "MoleCare for Claude Code: skin-health education that never diagnoses.",
+  "owner": {
+    "name": "MoleCare LTD",
+    "email": "info@molecare.co.uk"
+  },
+  "plugins": [
+    {
+      "name": "molecare",
+      "source": "./",
+      "description": "Skin-health education: the ABCDE checklist, sun safety and skin-condition codes. Not a medical device.",
+      "version": "1.1.0"
+    }
+  ]
+}
