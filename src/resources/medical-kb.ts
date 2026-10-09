@@ -48,6 +48,7 @@ const knowledgeBaseSchema = z.strictObject({
   sunscreen: knowledgeEntryWithExamples(3),
   "self-examination": knowledgeEntryWithExamples(3),
   "uv-protection": knowledgeEntryWithExamples(3),
+  "sun-myths": knowledgeEntryWithExamples(3),
 });
 
 const disclaimersSchema = z.strictObject({
