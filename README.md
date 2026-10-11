@@ -369,6 +369,13 @@ Please keep secrets out of examples and prefer localhost defaults.
 - [MoleCare](https://www.molecare.co.uk/)  
 - [MoleCare-ML](https://github.com/MoleCare/MoleCare-ML) — melanoma classification service and training notebooks
 
+### Where it is listed
+
+- [npm](https://www.npmjs.com/package/molecare-mcp), as `molecare-mcp`
+- [Glama](https://glama.ai/mcp/servers/MoleCare/molecare-mcp) and [MCP Servers Live](https://linny006.github.io/mcp-servers-live/r/MoleCare/molecare-mcp/), which index MCP servers
+
+If you use it somewhere, or wrote about it, open an issue and it goes here.
+
 ---
 
 ## Contributors
