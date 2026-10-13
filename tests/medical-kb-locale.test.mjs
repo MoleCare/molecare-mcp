@@ -17,6 +17,7 @@ const KNOWLEDGE_RESOURCE_URIS = [
   "molecare://knowledge/skin-types",
   "molecare://knowledge/prevention-tips",
   "molecare://knowledge/when-to-see-doctor",
+  "molecare://knowledge/nhs-skin-doors",
 ];
 
 test("English medical knowledge locale is complete and is the runtime default", () => {
