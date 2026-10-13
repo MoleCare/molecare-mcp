@@ -28,6 +28,7 @@ const EXPECTED_RESOURCE_URIS = [
   "molecare://knowledge/skin-types",
   "molecare://knowledge/prevention-tips",
   "molecare://knowledge/when-to-see-doctor",
+  "molecare://knowledge/nhs-skin-doors",
   "molecare://ontology/snomed-codes",
   "molecare://ontology/icd10-codes",
   "molecare://ontology/snomed-icd10-map",

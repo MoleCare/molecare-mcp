@@ -50,6 +50,7 @@ const knowledgeBaseSchema = z.strictObject({
   "uv-protection": knowledgeEntryWithExamples(3),
   "sun-myths": knowledgeEntryWithExamples(3),
   "hot-weather": knowledgeEntryWithExamples(3),
+  "nhs-doors": knowledgeEntryWithExamples(3),
 });
 
 const disclaimersSchema = z.strictObject({
@@ -131,6 +132,17 @@ const resourcesSchema = z.strictObject({
       scheduleAppointment: textList.length(7),
       routineScreening: textList.length(4),
       whatToExpect: nonEmptyText,
+    }),
+    disclaimerKey: z.literal("educationalOnlyWithConsult"),
+  }),
+  "molecare://knowledge/nhs-skin-doors": z.strictObject({
+    ...resourceFields,
+    content: z.strictObject({
+      pharmacist: textList.length(4),
+      gp: textList.length(5),
+      urgent: textList.length(3),
+      englandNote: nonEmptyText,
+      neverAppliedToPhotos: nonEmptyText,
     }),
     disclaimerKey: z.literal("educationalOnlyWithConsult"),
   }),

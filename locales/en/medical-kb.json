@@ -139,6 +139,18 @@
         "Reapply sunscreen after swimming or sweating",
         "Keep babies under 6 months out of direct sunlight"
       ]
+    },
+    "nhs-doors": {
+      "term": "NHS Skin Care Doors",
+      "keywords": ["pharmacist", "pharmacy", "pharmacy first", "gp", "111", "999", "nhs", "itchy skin", "dry skin", "acne", "self-care"],
+      "definition": "England's everyday skin pathway is home, then a pharmacist, then a GP. 111 and 999 are for being unwell with a rash, not for a photo.",
+      "details": "The NHS names a pharmacist first for mild dry skin and mild acne. See a GP if self-care is not helping, spots are deep or scarring, itch is affecting daily life, a mark has changed size, shape or colour, you are pregnant and itchy, or you are worried. Call 111 or 999 only if you are unwell with a rash, or if lips, tongue or breathing are affected. Pharmacy First and the NHS England over-the-counter policy are England services; Scotland, Wales and Northern Ireland have their own pharmacy schemes. These are public NHS boxes. They are not applied to anyone's photos.",
+      "significance": "England moved a large volume of everyday skin into self-care and community pharmacy. Quoting the boxes is education. Applying them to a person's picture or diary would be triage, which MoleCare does not do.",
+      "examples": [
+        "A pharmacist can advise on emollients, mild acne treatments, and whether you need a GP",
+        "See a GP if self-care is not helping, spots are scarring, itch affects daily life, a mark has changed, or you are worried",
+        "Call 111 or 999 if you are unwell with a rash, or if lips, tongue or breathing are affected"
+      ]
     }
   },
   "disclaimers": {
@@ -299,6 +311,34 @@
           "If you work outdoors frequently"
         ],
         "whatToExpect": "A dermatologist will examine your skin, possibly using a dermatoscope (magnifying device). They may photograph moles for monitoring or perform a biopsy if needed."
+      },
+      "disclaimerKey": "educationalOnlyWithConsult"
+    },
+    "molecare://knowledge/nhs-skin-doors": {
+      "name": "NHS Skin Care Doors",
+      "description": "Static NHS wording: pharmacist, then GP, then 111 or 999. Never applied to photos.",
+      "title": "NHS: pharmacist, GP, 111",
+      "content": {
+        "pharmacist": [
+          "Mild dry skin: emollients from a pharmacy; a pharmacist can advise",
+          "Mild acne: pharmacy treatments such as salicylic acid or benzoyl peroxide",
+          "Itchy skin: a pharmacist can suggest creams and whether you need a GP",
+          "Pityriasis versicolor: a pharmacist can advise on pale or non-tanning patches"
+        ],
+        "gp": [
+          "Acne: self-treatment has not helped; spots are deep, painful or scarring; possible infection (redness is harder to see on brown and black skin); or it is affecting mental health",
+          "Itch: affecting daily life, not better with self-care, all over, severe, or in pregnancy",
+          "A mole that changes size, shape or colour, or a new unusual mark still there after a few weeks",
+          "Dry skin with inflammation, sleep-destroying itch, sores or infection",
+          "Any skin change you are worried about"
+        ],
+        "urgent": [
+          "NHS 111: unwell with a rash, or hives that are spreading, with fever, or with swelling under the skin",
+          "999: sudden swelling of lips, tongue or throat, or struggling to breathe",
+          "On brown or black skin, paleness or greyness can be easier to see on palms and soles"
+        ],
+        "englandNote": "Pharmacy First and the NHS England over-the-counter policy are England services. Scotland, Wales and Northern Ireland have their own pharmacy schemes.",
+        "neverAppliedToPhotos": "These lists quote NHS public pages. They are not applied to anyone's photos, diary or UV reading."
       },
       "disclaimerKey": "educationalOnlyWithConsult"
     }
