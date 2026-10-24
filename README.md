@@ -373,6 +373,7 @@ Please keep secrets out of examples and prefer localhost defaults.
 
 - [npm](https://www.npmjs.com/package/molecare-mcp), as `molecare-mcp`
 - [Glama](https://glama.ai/mcp/servers/MoleCare/molecare-mcp) and [MCP Servers Live](https://linny006.github.io/mcp-servers-live/r/MoleCare/molecare-mcp/), which index MCP servers
+- [mcprush](https://mcprush.com/molecare/molecare-mcp), a marketplace for MCP servers and agent skills: free, installed from the npm package, nothing hosted by mcprush
 
 If you use it somewhere, or wrote about it, open an issue and it goes here.
 
