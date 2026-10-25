@@ -402,4 +402,4 @@ worse than none. [Contributor graph](https://github.com/MoleCare/molecare-mcp/gr
 
 ## License
 
-[Apache-2.0](./LICENSE) © Aleh Bichel
+[Apache-2.0](./LICENSE) © Yauhen Bichel

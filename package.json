@@ -4,7 +4,7 @@
   "mcpName": "io.github.MoleCare/molecare-mcp",
   "description": "MCP server bridging the MoleCare API to any MCP client: educational dermatology knowledge (lesion terminology, ABCDE criteria, SNOMED CT to ICD-10 mapping) and mole tracking data. Runs with no credentials. Not a medical device.",
   "license": "Apache-2.0",
-  "author": "Aleh Bichel <info@molecare.co.uk> (https://www.molecare.co.uk)",
+  "author": "Yauhen Bichel <info@molecare.co.uk> (https://www.molecare.co.uk)",
   "homepage": "https://github.com/MoleCare/molecare-mcp#readme",
   "repository": {
     "type": "git",
