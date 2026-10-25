@@ -2,7 +2,7 @@
   "name": "molecare",
   "description": "MoleCare for Claude Code: skin-health education that never diagnoses.",
   "owner": {
-    "name": "MoleCare LTD",
+    "name": "Aleh Bichel",
     "email": "info@molecare.co.uk"
   },
   "plugins": [
